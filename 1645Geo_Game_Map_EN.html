@@ -1,0 +1,2242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="dashboard">
+  <meta name="design-style" content="broadsheet">
+  <title>Le Jeu du Monde (1645) — Pierre Du Val’s Geographical Game &amp; Atlas</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,500..800;1,400..700&family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+
+  <style>
+    :root {
+      color-scheme: light;
+
+      /* Page and surfaces */
+      --background: #f7f3eb;
+      --surface-container-low: #efe8da;
+      --surface-container: #e6ddcc;
+      --surface-container-high: #ddd2be;
+
+      /* Ink */
+      --on-surface: #1a1817;
+      --on-surface-variant: #4d4845;
+
+      /* Rules */
+      --outline: #33302e;
+      --outline-variant: #cdc3b2;
+
+      /* Accents */
+      --primary: #990f3d;
+      --on-primary: #ffffff;
+      --primary-container: #f4dce2;
+      --on-primary-container: #6b0a2a;
+      --secondary: #0d7680;
+      --tertiary: #0f5499;
+      --error: #b3261e;
+      --on-error: #ffffff;
+
+      /* Data series */
+      --data-1: #990f3d;
+      --data-2: #0d7680;
+      --data-3: #0f5499;
+      --data-4: #9a6312;
+      --data-context: #bfb5a4;
+
+      /* Cartographic board wash tokens (hand-tinted 1645 engraving hues) */
+      --wash-americas: #f2e4cc;
+      --wash-africa: #f2dde1;
+      --wash-asia: #d8ebeb;
+      --wash-europe: #dde6f0;
+      --wash-france: #f4dce2;
+      --board-paper: #fbf8f1;
+      --ocean-wash: #ebe4d6;
+      --land-wash: #dcd2bf;
+
+      /* Semantic & Focus */
+      --positive: #0d7680;
+      --warning: #9a6312;
+      --focus: #990f3d;
+
+      /* Fonts */
+      --font-headline: 'Bitter', serif;
+      --font-body: 'Source Serif 4', serif;
+      --font-label: 'Source Sans 3', sans-serif;
+
+      /* Type scale (Dashboard) */
+      --display-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.35rem);
+      --headline-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+      --subhead-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+      --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --label-size: 0.75rem;
+
+      /* Shape */
+      --rounded: 0;
+      --rounded-lg: 0;
+      --rounded-full: 0;
+
+      /* Style effects */
+      --rule-masthead: 3px double var(--on-surface);
+      --rule-ink: 1px solid var(--on-surface);
+      --rule-section: 2px solid var(--outline);
+      --rule-column: 1px solid var(--outline-variant);
+
+      /* Spacing scale (4pt base) */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.5rem;
+      --space-2xl: 4rem;
+      --space-3xl: 6rem;
+
+      /* Motion */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-micro: 120ms;
+      --dur-short: 220ms;
+      --dur-long: 420ms;
+    }
+
+    /* Base reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      overflow-x: clip;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background);
+      color: var(--on-surface);
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      line-height: 1.58;
+      font-optical-sizing: auto;
+    }
+    header { position: static !important; }
+
+    .page-grid {
+      display: grid;
+      gap: var(--space-lg);
+      padding: var(--space-lg);
+      max-width: 1240px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    .page-grid * { min-width: 0; }
+
+    /* Focus rings */
+    :focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    /* Typography */
+    h1, h2, h3, h4 {
+      margin: 0;
+      font-family: var(--font-headline);
+      color: var(--on-surface);
+    }
+    h1 {
+      font-weight: 800;
+      font-size: var(--display-size);
+      line-height: 1.06;
+      letter-spacing: -0.015em;
+    }
+    h2 {
+      font-weight: 700;
+      font-size: var(--headline-size);
+      line-height: 1.12;
+      letter-spacing: -0.01em;
+    }
+    h3 {
+      font-weight: 700;
+      font-size: var(--subhead-size);
+      line-height: 1.18;
+    }
+    p {
+      margin: 0;
+      max-width: 65ch;
+    }
+
+    /* Broadsheet Masthead */
+    .masthead-line {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm) var(--space-md);
+      border-bottom: var(--rule-masthead);
+      padding-bottom: var(--space-sm);
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--on-surface-variant);
+    }
+    .masthead-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      align-items: center;
+    }
+    .masthead-nav button {
+      background: transparent;
+      border: 0;
+      padding: var(--space-xs) 0;
+      min-height: 44px;
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--on-surface-variant);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out);
+    }
+    .masthead-nav button:hover,
+    .masthead-nav button.is-active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .masthead {
+      border-bottom: var(--rule-ink);
+      padding-block: var(--space-md) var(--space-lg);
+      display: grid;
+      gap: var(--space-sm);
+    }
+    .standfirst {
+      font-family: var(--font-body);
+      font-size: clamp(1rem, 0.95rem + 0.35vw, 1.1875rem);
+      line-height: 1.48;
+      color: var(--on-surface-variant);
+      max-width: 62ch;
+    }
+
+    /* Hairline-ruled KPI Columns */
+    .columns {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+      border-bottom: var(--rule-ink);
+      padding-bottom: var(--space-md);
+    }
+    .columns > * {
+      border-left: var(--rule-column);
+      padding: var(--space-xs) var(--space-lg);
+      background: transparent;
+    }
+    .columns > :first-child {
+      border-left: 0;
+      padding-left: 0;
+    }
+    .kpi-label {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--on-surface-variant);
+    }
+    .kpi-value {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: clamp(1.375rem, 1.15rem + 0.8vw, 1.85rem);
+      line-height: 1.15;
+      font-variant-numeric: lining-nums tabular-nums;
+      color: var(--on-surface);
+      margin-top: var(--space-xs);
+    }
+    .kpi-delta {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--secondary);
+      margin-top: var(--space-xs);
+    }
+
+    /* Section Headers */
+    .section-open {
+      border-top: var(--rule-section);
+      padding-top: var(--space-sm);
+      display: grid;
+      gap: var(--space-xs);
+    }
+    .section-header-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: var(--space-md);
+    }
+    .section-label {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--primary);
+    }
+    .section-standfirst {
+      font-family: var(--font-body);
+      color: var(--on-surface-variant);
+      font-size: 0.9375rem;
+      max-width: 65ch;
+    }
+
+    /* Bare Teal Tags (only on --background) */
+    .tag {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--secondary);
+      background: transparent;
+      padding: 0;
+      display: inline-block;
+    }
+    .tag-claret {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--primary);
+      background: transparent;
+      padding: 0;
+      display: inline-block;
+    }
+
+    /* Buttons (Broadsheet square) */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      min-height: 44px;
+      padding: 0 var(--space-md);
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 0.8125rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 1px solid var(--outline);
+      border-radius: var(--rounded);
+      cursor: pointer;
+      transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out), outline-color var(--dur-micro) var(--ease-out);
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background-color: var(--primary);
+      border-color: var(--primary);
+      color: var(--on-primary);
+    }
+    .btn-primary:hover:not(:disabled) {
+      background-color: var(--on-primary-container);
+      border-color: var(--on-primary-container);
+    }
+    .btn-secondary {
+      background-color: var(--surface-container-low);
+      border-color: var(--outline);
+      color: var(--on-surface);
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background-color: var(--surface-container-high);
+    }
+    .btn-ghost {
+      background-color: transparent;
+      border-color: var(--outline-variant);
+      color: var(--on-surface);
+    }
+    .btn-ghost:hover:not(:disabled) {
+      background-color: var(--surface-container-low);
+      border-color: var(--outline);
+    }
+    .btn-ghost.is-selected {
+      background-color: var(--primary-container);
+      border-color: var(--primary);
+      color: var(--on-primary-container);
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Form Controls */
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+    .field-label {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--on-surface-variant);
+    }
+    input[type="text"],
+    input[type="search"],
+    select {
+      min-height: 44px;
+      padding: 0 var(--space-sm);
+      background-color: var(--background);
+      color: var(--on-surface);
+      border: 1px solid var(--outline);
+      border-radius: var(--rounded);
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+    }
+    select {
+      padding-right: var(--space-xl);
+    }
+    input:focus, select:focus {
+      border-color: var(--primary);
+    }
+
+    /* Main Workspace Grid: Board + Console */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.42fr) minmax(0, 1fr);
+      gap: 0;
+      border-bottom: var(--rule-ink);
+      padding-bottom: var(--space-lg);
+    }
+    .board-pane {
+      padding-right: var(--space-lg);
+      border-right: var(--rule-column);
+      display: grid;
+      gap: var(--space-md);
+      align-content: start;
+    }
+    .console-pane {
+      padding-left: var(--space-lg);
+      display: grid;
+      gap: var(--space-md);
+      align-content: start;
+    }
+
+    /* Board Toolbar */
+    .board-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: end;
+      gap: var(--space-sm);
+    }
+    .legend-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm) var(--space-md);
+      align-items: center;
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--on-surface-variant);
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      background: transparent;
+      border: 1px solid transparent;
+      padding: var(--space-xs);
+      min-height: 36px;
+      cursor: pointer;
+      color: var(--on-surface-variant);
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+      text-transform: inherit;
+      letter-spacing: inherit;
+    }
+    .legend-item:hover,
+    .legend-item.is-active {
+      border-color: var(--outline);
+      color: var(--on-surface);
+      background-color: var(--surface-container-low);
+    }
+    .swatch {
+      width: 12px;
+      height: 12px;
+      border: 1px solid var(--outline);
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .swatch-americas { background-color: var(--wash-americas); }
+    .swatch-africa { background-color: var(--wash-africa); }
+    .swatch-asia { background-color: var(--wash-asia); }
+    .swatch-europe { background-color: var(--wash-europe); }
+    .swatch-france { background-color: var(--wash-france); border-color: var(--primary); }
+
+    /* Spiral SVG Stage */
+    .board-stage {
+      background-color: var(--board-paper);
+      border: 2px solid var(--outline);
+      padding: var(--space-sm);
+      position: relative;
+      min-height: 520px;
+    }
+    .board-svg {
+      width: 100%;
+      height: auto;
+      min-height: 500px;
+      display: block;
+      user-select: none;
+    }
+    .circle-node {
+      cursor: pointer;
+      transition: opacity var(--dur-short) var(--ease-out);
+    }
+    .circle-node .node-ring {
+      transition: stroke-width var(--dur-micro) var(--ease-out), stroke var(--dur-micro) var(--ease-out);
+    }
+    .circle-node:hover .node-ring {
+      stroke: var(--primary);
+      stroke-width: 2.6;
+    }
+    .circle-node.is-selected .node-ring {
+      stroke: var(--primary);
+      stroke-width: 3.2;
+    }
+    .circle-node.is-dimmed {
+      opacity: 0.28;
+    }
+    .node-num {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 11px;
+      fill: var(--on-surface);
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+    }
+    .node-num-center {
+      font-family: var(--font-headline);
+      font-weight: 800;
+      font-size: 16px;
+      fill: var(--primary);
+      text-anchor: middle;
+      pointer-events: none;
+    }
+    .node-sub-center {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 8.5px;
+      letter-spacing: 0.08em;
+      fill: var(--on-surface);
+      text-anchor: middle;
+      pointer-events: none;
+    }
+    .spiral-track {
+      fill: none;
+      stroke: var(--outline-variant);
+      stroke-width: 1.5;
+      stroke-dasharray: 4 3;
+    }
+    .player-token {
+      transition: transform var(--dur-long) var(--ease-out);
+      pointer-events: none;
+    }
+    .board-caption {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+      padding-top: var(--space-xs);
+    }
+
+    /* Dice & Game Control Box (rare filled newsprint panel) */
+    .game-panel {
+      background-color: var(--surface-container-low);
+      border: 1px solid var(--outline);
+      padding: var(--space-md);
+      display: grid;
+      gap: var(--space-md);
+    }
+    .game-panel-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+      border-bottom: 1px solid var(--outline-variant);
+      padding-bottom: var(--space-sm);
+    }
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      align-items: end;
+    }
+    .dice-stage {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-sm) 0;
+    }
+    .dice-pair {
+      display: flex;
+      gap: var(--space-sm);
+      align-items: center;
+    }
+    .die-svg {
+      width: 48px;
+      height: 48px;
+      display: block;
+      transition: transform var(--dur-short) var(--ease-out);
+    }
+    .die-svg.is-rolling {
+      transform: rotate(18deg) scale(1.06);
+    }
+    .roll-readout {
+      display: grid;
+      gap: 2px;
+    }
+    .roll-total {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: 1.25rem;
+      font-variant-numeric: tabular-nums;
+      color: var(--on-surface);
+    }
+    .roll-detail {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--on-surface-variant);
+    }
+    .players-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+      gap: var(--space-sm);
+      border-top: 1px solid var(--outline-variant);
+      padding-top: var(--space-sm);
+    }
+    .player-card {
+      padding: var(--space-sm);
+      background-color: var(--background);
+      border: 1px solid var(--outline-variant);
+      display: grid;
+      gap: 2px;
+    }
+    .player-card.is-turn {
+      border-color: var(--primary);
+      background-color: var(--primary-container);
+    }
+    .player-name {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+    .token-dot {
+      width: 10px;
+      height: 10px;
+      display: inline-block;
+      border: 1px solid var(--on-surface);
+    }
+    .token-p1 { background-color: var(--primary); }
+    .token-p2 { background-color: var(--tertiary); }
+    .player-pos {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: 1rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .turn-banner {
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      padding: var(--space-sm);
+      background-color: var(--background);
+      border-left: 3px solid var(--primary);
+      color: var(--on-surface);
+    }
+
+    /* Storytelling Card */
+    .story-card {
+      border-top: 2px solid var(--on-surface);
+      padding-top: var(--space-md);
+      display: grid;
+      gap: var(--space-sm);
+    }
+    .story-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .story-french {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+      line-height: 1.15;
+    }
+    .story-english {
+      font-family: var(--font-body);
+      font-style: italic;
+      color: var(--on-surface-variant);
+      font-size: 1rem;
+    }
+    .story-rule-note {
+      padding: var(--space-sm) var(--space-md);
+      border: 1px solid var(--outline-variant);
+      background-color: var(--surface-container-low);
+      font-family: var(--font-label);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--on-surface);
+    }
+    .story-misconception {
+      padding: var(--space-sm) var(--space-md);
+      border-left: 3px solid var(--data-4);
+      background-color: var(--surface-container-low);
+      font-size: 0.9375rem;
+      display: grid;
+      gap: var(--space-xs);
+    }
+    .story-nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--outline-variant);
+    }
+    .story-coords {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 600;
+      color: var(--on-surface-variant);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Analytical & Map Grid */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+      gap: 0;
+      border-bottom: var(--rule-ink);
+      padding-bottom: var(--space-lg);
+    }
+    .analytics-col-left {
+      padding-right: var(--space-lg);
+      border-right: var(--rule-column);
+      display: grid;
+      gap: var(--space-md);
+      align-content: start;
+    }
+    .analytics-col-right {
+      padding-left: var(--space-lg);
+      display: grid;
+      gap: var(--space-md);
+      align-content: start;
+    }
+    .chart-box {
+      min-height: 310px;
+      height: 320px;
+      position: relative;
+    }
+    .d3-map-box {
+      min-height: 360px;
+      background-color: var(--board-paper);
+      border: 1px solid var(--outline-variant);
+      position: relative;
+    }
+    .d3-map-svg {
+      width: 100%;
+      height: auto;
+      min-height: 350px;
+      display: block;
+    }
+    .source-line {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+    }
+
+    /* Gazetteer Filters & Broadsheet Table */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      align-items: end;
+      padding-bottom: var(--space-md);
+      border-bottom: 1px solid var(--outline-variant);
+    }
+    .filter-bar .search-field {
+      flex: 1 1 240px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      border-top: var(--rule-ink);
+      border-bottom: var(--rule-ink);
+    }
+    table.gazetteer-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+    }
+    table.gazetteer-table th {
+      text-align: left;
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--on-surface-variant);
+      padding: var(--space-sm) var(--space-sm);
+      border-bottom: var(--rule-ink);
+      background-color: var(--background);
+      white-space: nowrap;
+    }
+    table.gazetteer-table th.num,
+    table.gazetteer-table td.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    table.gazetteer-table td {
+      padding: var(--space-sm) var(--space-sm);
+      border-bottom: 1px solid var(--outline-variant);
+      vertical-align: top;
+    }
+    table.gazetteer-table tbody tr {
+      cursor: pointer;
+      transition: background-color var(--dur-micro) var(--ease-out);
+    }
+    table.gazetteer-table tbody tr:hover {
+      background-color: var(--surface-container-low);
+    }
+    table.gazetteer-table tbody tr.is-selected {
+      background-color: var(--primary-container);
+    }
+    .sort-btn {
+      background: transparent;
+      border: 0;
+      padding: 0;
+      font: inherit;
+      color: inherit;
+      text-transform: inherit;
+      letter-spacing: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+    .sort-btn:hover {
+      color: var(--primary);
+    }
+
+    /* Essay Columns (17th-century French Cartography) */
+    .essay-columns {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0;
+      border-bottom: var(--rule-ink);
+      padding-bottom: var(--space-lg);
+    }
+    .essay-columns > article {
+      border-left: var(--rule-column);
+      padding: 0 var(--space-lg);
+      display: grid;
+      gap: var(--space-sm);
+      align-content: start;
+    }
+    .essay-columns > article:first-child {
+      border-left: 0;
+      padding-left: 0;
+    }
+    .essay-columns > article:last-child {
+      padding-right: 0;
+    }
+    .pull-quote {
+      border-top: var(--rule-ink);
+      border-bottom: var(--rule-ink);
+      padding: var(--space-md) 0;
+      font-family: var(--font-headline);
+      font-style: italic;
+      font-size: 1.125rem;
+      line-height: 1.4;
+      color: var(--on-surface);
+      margin-top: var(--space-xs);
+    }
+
+    .footer-provenance {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: var(--space-md);
+      padding-top: var(--space-sm);
+      padding-bottom: var(--space-xl);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 960px) {
+      .workspace-grid,
+      .analytics-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+      }
+      .board-pane,
+      .analytics-col-left {
+        padding-right: 0;
+        border-right: 0;
+        border-bottom: var(--rule-column);
+        padding-bottom: var(--space-lg);
+      }
+      .console-pane,
+      .analytics-col-right {
+        padding-left: 0;
+      }
+      .columns {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-md) 0;
+      }
+      .columns > :nth-child(3) {
+        border-left: 0;
+        padding-left: 0;
+      }
+      .essay-columns {
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+      }
+      .essay-columns > article {
+        border-left: 0;
+        border-top: var(--rule-column);
+        padding: var(--space-md) 0 0 0;
+      }
+      .essay-columns > article:first-child {
+        border-top: 0;
+        padding-top: 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page-grid {
+        padding: var(--space-md);
+        gap: var(--space-md);
+      }
+      .columns {
+        grid-template-columns: 1fr;
+      }
+      .columns > * {
+        border-left: 0;
+        border-top: var(--rule-column);
+        padding: var(--space-sm) 0;
+      }
+      .columns > :first-child {
+        border-top: 0;
+        padding-top: 0;
+      }
+      .board-stage {
+        min-height: 360px;
+      }
+      .board-svg {
+        min-height: 340px;
+      }
+      .d3-map-box {
+        min-height: 260px;
+      }
+      .d3-map-svg {
+        min-height: 250px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-grid">
+    <!-- Masthead -->
+    <header>
+      <div class="masthead-line">
+        <span>Paris · Rue Saint-Jacques à l’Espérance · 1645 · Privilége du Roy · Hennin 3477</span>
+        <nav class="masthead-nav" aria-label="Dashboard sections">
+          <button type="button" class="is-active" onclick="scrollToSection('sec-board', this)">Spiral Board</button>
+          <button type="button" onclick="scrollToSection('sec-analytics', this)">Bias &amp; World Map</button>
+          <button type="button" onclick="scrollToSection('sec-gazetteer', this)">63-Circle Gazetteer</button>
+          <button type="button" onclick="scrollToSection('sec-history', this)">1645 Cartography</button>
+        </nav>
+      </div>
+      <div class="masthead">
+        <h1>Le Jeu du Monde: Pierre Du Val’s 1645 Geographical Game</h1>
+        <p class="standfirst">
+          An interactive 63-circle board expedition and cartographic dashboard reconstructing Pierre Du Val d’Abbeville’s rare Paris edition—dedicated to the Comte de Vivonne, winding from the outer world to France at the center.
+        </p>
+      </div>
+    </header>
+
+    <!-- Key Figures Strip (Hairline columns, no filled cards) -->
+    <section class="columns" aria-label="Key historical and game metrics">
+      <div>
+        <div class="kpi-label">Spiral Path Length</div>
+        <div class="kpi-value">63 Circles</div>
+        <div class="kpi-delta">Outer Indies → Paris Center</div>
+      </div>
+      <div>
+        <div class="kpi-label">Original Copperplate</div>
+        <div class="kpi-value">51 × 40 cm</div>
+        <div class="kpi-delta">Paris 1645 · 2 Known Copies</div>
+      </div>
+      <div>
+        <div class="kpi-label">European Share of Board</div>
+        <div class="kpi-value" id="kpi-euro-share">30.2%</div>
+        <div class="kpi-delta">19 of 63 Spaces (Incl. France)</div>
+      </div>
+      <div>
+        <div class="kpi-label">Current Expedition</div>
+        <div class="kpi-value" id="kpi-current-circle">Circle 01</div>
+        <div class="kpi-delta" id="kpi-explored-count">1 / 63 Circles Examined</div>
+      </div>
+    </section>
+
+    <!-- Section 1: Interactive 63-Circle Spiral Board & Game Console -->
+    <section id="sec-board" class="section-open">
+      <div class="section-header-row">
+        <div>
+          <span class="section-label">I. Playable Copperplate Spiral &amp; Storytelling Atlas</span>
+          <h2>Navigate from the Outer World to France at Circle 63</h2>
+        </div>
+        <div class="legend-row" role="group" aria-label="Filter spiral by continental zone">
+          <button type="button" class="legend-item is-active" data-zone-filter="All" onclick="setBoardZoneFilter('All', this)">All 63</button>
+          <button type="button" class="legend-item" data-zone-filter="Americas" onclick="setBoardZoneFilter('Americas', this)"><span class="swatch swatch-americas"></span>Americas (1–16)</button>
+          <button type="button" class="legend-item" data-zone-filter="Africa" onclick="setBoardZoneFilter('Africa', this)"><span class="swatch swatch-africa"></span>Africa (17–28)</button>
+          <button type="button" class="legend-item" data-zone-filter="Asia" onclick="setBoardZoneFilter('Asia', this)"><span class="swatch swatch-asia"></span>Asia (29–44)</button>
+          <button type="button" class="legend-item" data-zone-filter="Europe" onclick="setBoardZoneFilter('Europe', this)"><span class="swatch swatch-europe"></span>Europe (45–62)</button>
+          <button type="button" class="legend-item" data-zone-filter="France" onclick="setBoardZoneFilter('France', this)"><span class="swatch swatch-france"></span>France (63)</button>
+        </div>
+      </div>
+
+      <div class="workspace-grid">
+        <!-- Left: 63-Circle SVG Spiral Game Board -->
+        <div class="board-pane">
+          <div class="board-stage">
+            <svg id="spiral-board-svg" class="board-svg" viewBox="0 0 820 620" role="img" aria-label="Interactive 63-circle spiral game board of Le Jeu du Monde (1645)">
+              <rect x="0" y="0" width="820" height="620" fill="var(--board-paper)" />
+              <rect x="10" y="10" width="800" height="600" fill="none" stroke="var(--outline)" stroke-width="1.5" />
+              <rect x="15" y="15" width="790" height="590" fill="none" stroke="var(--outline-variant)" stroke-width="1" />
+
+              <!-- Top-left corner inset: Western Hemisphere -->
+              <g id="inset-west-hemisphere" transform="translate(22, 22)">
+                <rect x="0" y="0" width="128" height="128" fill="var(--background)" stroke="var(--outline)" stroke-width="1" />
+                <text x="64" y="14" text-anchor="middle" font-family="var(--font-label)" font-size="8" font-weight="700" letter-spacing="0.06em" fill="var(--on-surface-variant)">INSET · NEW WORLD</text>
+                <g id="inset-west-geo" transform="translate(64, 72)"></g>
+              </g>
+
+              <!-- Top-right corner inset: Eastern Hemisphere -->
+              <g id="inset-east-hemisphere" transform="translate(670, 22)">
+                <rect x="0" y="0" width="128" height="128" fill="var(--background)" stroke="var(--outline)" stroke-width="1" />
+                <text x="64" y="14" text-anchor="middle" font-family="var(--font-label)" font-size="8" font-weight="700" letter-spacing="0.06em" fill="var(--on-surface-variant)">INSET · OLD WORLD</text>
+                <g id="inset-east-geo" transform="translate(64, 72)"></g>
+              </g>
+
+              <!-- Bottom-left corner: Compass Rose & Imprint Cartouche -->
+              <g transform="translate(22, 476)">
+                <rect x="0" y="0" width="144" height="122" fill="var(--background)" stroke="var(--outline)" stroke-width="1" />
+                <text x="72" y="18" text-anchor="middle" font-family="var(--font-headline)" font-size="11" font-weight="700" fill="var(--on-surface)">LE JEU DU MONDE</text>
+                <text x="72" y="32" text-anchor="middle" font-family="var(--font-label)" font-size="8" font-weight="700" letter-spacing="0.06em" fill="var(--primary)">P. DU VAL · 1645</text>
+                <!-- Engraved compass rose -->
+                <g transform="translate(72, 76)" aria-hidden="true">
+                  <circle cx="0" cy="0" r="26" fill="none" stroke="var(--outline)" stroke-width="1" />
+                  <circle cx="0" cy="0" r="20" fill="none" stroke="var(--outline-variant)" stroke-width="0.8" />
+                  <polygon points="0,-24 5,-5 0,-8 -5,-5" fill="var(--primary)" />
+                  <polygon points="0,24 5,5 0,8 -5,5" fill="var(--on-surface)" />
+                  <polygon points="24,0 5,5 8,0 5,-5" fill="var(--on-surface-variant)" />
+                  <polygon points="-24,0 -5,5 -8,0 -5,-5" fill="var(--on-surface-variant)" />
+                  <text x="0" y="-28" text-anchor="middle" font-family="var(--font-label)" font-size="7.5" font-weight="700" fill="var(--primary)">N</text>
+                </g>
+              </g>
+
+              <!-- Bottom-right corner: Comte de Vivonne Patron Dedication & Coat of Arms -->
+              <g transform="translate(654, 476)">
+                <rect x="0" y="0" width="144" height="122" fill="var(--background)" stroke="var(--outline)" stroke-width="1" />
+                <text x="72" y="18" text-anchor="middle" font-family="var(--font-label)" font-size="8" font-weight="700" letter-spacing="0.06em" fill="var(--on-surface-variant)">DEDICATED TO</text>
+                <text x="72" y="32" text-anchor="middle" font-family="var(--font-headline)" font-size="10.5" font-weight="700" fill="var(--on-surface)">Comte de Vivone</text>
+                <g transform="translate(72, 72)" aria-hidden="true">
+                  <path d="M-18,-22 L18,-22 L18,2 C18,16 0,25 0,25 C0,25 -18,16 -18,2 Z" fill="var(--primary-container)" stroke="var(--outline)" stroke-width="1.4" />
+                  <path d="M-18,-6 L18,-6 M-18,3 L18,3" stroke="var(--primary)" stroke-width="2" />
+                  <circle cx="0" cy="-14" r="3" fill="var(--primary)" />
+                </g>
+                <text x="72" y="110" text-anchor="middle" font-family="var(--font-label)" font-size="7.5" font-weight="600" fill="var(--on-surface-variant)">RUE S.T JACQUES · PARIS</text>
+              </g>
+
+              <!-- Dynamic Spiral Track, 63 Circles, and Player Tokens -->
+              <g id="spiral-track-layer"></g>
+              <g id="spiral-nodes-layer"></g>
+              <g id="spiral-tokens-layer"></g>
+            </svg>
+          </div>
+          <div class="board-caption">
+            <span>Click any numbered circle (1–63) to inspect its 1645 storytelling card. Asterisk (*) marks a notable cartographic misconception.</span>
+            <span>Game markers: ▲ Favorable wind · ■ Delay · ✕ Hazard</span>
+          </div>
+        </div>
+
+        <!-- Right: Dice & Movement Console + Storytelling Card -->
+        <div class="console-pane">
+          <div class="game-panel" aria-label="Game controls and dice roller">
+            <div class="game-panel-head">
+              <div>
+                <span class="section-label">Expedition Console</span>
+                <h3>Roll Dice &amp; Advance</h3>
+              </div>
+              <button type="button" class="btn btn-ghost" id="btn-reset-game" onclick="handleResetGame(this)">Reset Game</button>
+            </div>
+
+            <div class="controls-row">
+              <div class="field-group">
+                <label class="field-label" for="select-players">Players</label>
+                <select id="select-players" onchange="setPlayerCount(this.value)">
+                  <option value="1">1 Player (Solo Voyage)</option>
+                  <option value="2">2 Players (Paris Race)</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="select-rules">Ruleset</label>
+                <select id="select-rules" onchange="setRuleMode(this.value)">
+                  <option value="classic">Classic 1645 Rules</option>
+                  <option value="explorer">Storyteller (No Setbacks)</option>
+                </select>
+              </div>
+              <button type="button" class="btn btn-primary" id="btn-roll-dice" onclick="rollDiceTurn()">
+                Roll 2 Dice
+              </button>
+            </div>
+
+            <div class="dice-stage">
+              <div class="dice-pair" id="dice-pair" aria-live="polite">
+                <!-- Dice SVGs populated by JS -->
+              </div>
+              <div class="roll-readout">
+                <div class="roll-total" id="roll-total-text">Ready at Start</div>
+                <div class="roll-detail" id="roll-detail-text">Roll two dice to begin from Circle 1</div>
+              </div>
+            </div>
+
+            <div class="players-strip" id="players-strip">
+              <!-- Player cards populated by JS -->
+            </div>
+
+            <div class="turn-banner" id="turn-banner" aria-live="polite">
+              Welcome to <em>Le Jeu du Monde</em> (1645). Roll two dice to move along the 63-circle spiral toward France at Circle 63, or click any circle on the map to read its history.
+            </div>
+          </div>
+
+          <!-- Detailed Storytelling Card -->
+          <article class="story-card" id="story-card" aria-live="polite">
+            <div class="story-meta">
+              <span class="tag" id="story-zone-tag">CIRCLE 05 · AMERICAS</span>
+              <span class="tag-claret" id="story-accuracy-tag">MYTH / MISCONCEPTION</span>
+            </div>
+            <div>
+              <h3 class="story-french" id="story-french">L’Île de Californie</h3>
+              <div class="story-english" id="story-english">California Depicted as an Island</div>
+            </div>
+            <p id="story-summary">
+              In Circle 5 of his 1645 game, Pierre Du Val depicts California as an elongated island separated from the North American mainland—one of the era’s most enduring cartographic errors.
+            </p>
+            <div class="story-misconception" id="story-misconception-box">
+              <span class="section-label">17th-Century Misconception vs. Reality</span>
+              <span id="story-misconception-text"></span>
+            </div>
+            <div class="story-rule-note" id="story-rule-note">
+              Game Rule: Standard space — advance on your next roll.
+            </div>
+            <div class="story-nav">
+              <div class="controls-row">
+                <button type="button" class="btn btn-secondary" id="btn-prev-circle" onclick="stepInspect(-1)">Prev Circle</button>
+                <button type="button" class="btn btn-secondary" id="btn-next-circle" onclick="stepInspect(1)">Next Circle</button>
+              </div>
+              <div class="story-coords" id="story-coords">27.0° N, 112.0° W</div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Data Visualization — Eurocentric Distortion & World Geography -->
+    <section id="sec-analytics" class="section-open">
+      <div class="section-header-row">
+        <div>
+          <span class="section-label">II. Quantitative &amp; Spatial Analysis</span>
+          <h2>Measuring 17th-Century Eurocentrism &amp; Cartographic Error</h2>
+          <p class="section-standfirst">
+            Comparing Du Val’s 63 spiral spaces against modern geography reveals how European kingdoms occupied nearly a third of the board while vast continents were compressed into outer margins.
+          </p>
+        </div>
+        <div class="controls-row">
+          <button type="button" class="btn btn-ghost is-selected" id="btn-chart-zone" onclick="setChartView('zone')">Spaces by Zone</button>
+          <button type="button" class="btn btn-ghost" id="btn-chart-accuracy" onclick="setChartView('accuracy')">Accuracy &amp; Myths</button>
+        </div>
+      </div>
+
+      <div class="analytics-grid">
+        <!-- Left: Chart.js Breakdown -->
+        <div class="analytics-col-left">
+          <div>
+            <h3 id="chart-title">Distribution of the 63 Circles by Continental Zone</h3>
+            <p class="source-line" id="chart-subtitle">Click any bar to highlight that region on both the spiral board and world map.</p>
+          </div>
+          <div class="chart-box">
+            <canvas id="cartography-chart" aria-label="Chart of 63 circles by region and accuracy"></canvas>
+          </div>
+          <div class="source-line">
+            Source: Reconstruction of Pierre Du Val’s 1645 63-circle spiral sequence (Rumsey List No. 6728.000). Europe + France = 19 circles (30.2%); Non-European world = 44 circles (69.8%).
+          </div>
+        </div>
+
+        <!-- Right: D3 Vector World Map -->
+        <div class="analytics-col-right">
+          <div>
+            <h3>Real-World Coordinates of the 63 Spiral Stops</h3>
+            <p class="source-line">The dashed path traces Circles 1 → 63 across Natural Earth geometry, highlighting the leap from the Americas, Africa, and Asia into dense European circles.</p>
+          </div>
+          <div class="d3-map-box">
+            <svg id="d3-world-map" class="d3-map-svg" viewBox="0 0 640 350" role="img" aria-label="Natural Earth vector world map plotting all 63 spaces of Le Jeu du Monde"></svg>
+          </div>
+          <div class="source-line" id="d3-map-status">
+            Boundaries: Natural Earth (public domain, 110m). Click any plotted circle to open its 1645 storytelling card.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Searchable 63-Circle Gazetteer -->
+    <section id="sec-gazetteer" class="section-open">
+      <div>
+        <span class="section-label">III. Complete Board Index</span>
+        <h2>Gazetteer of All 63 Numbered Circles</h2>
+        <p class="section-standfirst">Search, filter, and sort every space on the 1645 spiral. Select any row to jump directly to its storytelling card and highlight it on the board.</p>
+      </div>
+
+      <div class="filter-bar">
+        <div class="field-group search-field">
+          <label class="field-label" for="gaz-search">Search Region or Myth</label>
+          <input type="search" id="gaz-search" placeholder="e.g., California, Prester John, Paris..." oninput="renderGazetteer()">
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="gaz-zone">Continental Zone</label>
+          <select id="gaz-zone" onchange="renderGazetteer()">
+            <option value="All">All Zones (63)</option>
+            <option value="Americas">Americas &amp; South (1–16)</option>
+            <option value="Africa">Africa (17–28)</option>
+            <option value="Asia">Asia &amp; Levant (29–44)</option>
+            <option value="Europe">Europe (45–62)</option>
+            <option value="France">France / Center (63)</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="gaz-accuracy">1645 Accuracy</label>
+          <select id="gaz-accuracy" onchange="renderGazetteer()">
+            <option value="All">All Classifications</option>
+            <option value="Myth / Misconception">Myths &amp; Misconceptions</option>
+            <option value="Partial">Partially Surveyed</option>
+            <option value="Accurate">Well-Charted</option>
+          </select>
+        </div>
+        <button type="button" class="btn btn-secondary" onclick="clearGazetteerFilters()">Clear Filters</button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="gazetteer-table">
+          <thead>
+            <tr>
+              <th class="num"><button type="button" class="sort-btn" onclick="setGazSort('id')">Circle #</button></th>
+              <th><button type="button" class="sort-btn" onclick="setGazSort('fr')">1645 French Title</button></th>
+              <th>English Region</th>
+              <th><button type="button" class="sort-btn" onclick="setGazSort('zone')">Zone</button></th>
+              <th><button type="button" class="sort-btn" onclick="setGazSort('accuracy')">Cartographic Status</button></th>
+              <th>Game Rule</th>
+            </tr>
+          </thead>
+          <tbody id="gazetteer-tbody">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+      <div class="source-line" id="gaz-count-line">Showing 63 of 63 circles</div>
+    </section>
+
+    <!-- Section 4: Background History on 17th-Century French Cartography -->
+    <section id="sec-history" class="section-open">
+      <div>
+        <span class="section-label">IV. Historical Context</span>
+        <h2>17th-Century French Cartography &amp; the Making of Le Jeu du Monde</h2>
+      </div>
+
+      <div class="essay-columns">
+        <article>
+          <h3>Pierre Du Val &amp; the Paris Cartographic Workshop</h3>
+          <p>
+            Born in Abbeville in 1619, Pierre Du Val was the nephew and protégé of Nicolas Sanson, widely regarded as the founder of modern French cartography. Publishing from his Paris shop on the <em>rue Saint-Jacques à l’Espérance</em> under royal privilege (<em>Privilége du Roy</em>, 1645), Du Val pioneered geographical education through compact atlases, wall tables, and pedagogical board games.
+          </p>
+          <p>
+            At just twenty-six years old, Du Val dedicated <em>Le Jeu du Monde</em> to Louis Victor de Rochechouart, <em>Comte de Vivonne</em>, First Gentleman of the King’s Chamber—whose heraldic arms adorn the center of the engraved sheet. Today only two copies of this 51 × 40 cm 1645 edition are known to survive: one at the Bibliothèque nationale de France and one in the David Rumsey Historical Map Collection.
+          </p>
+        </article>
+
+        <article>
+          <h3>Play as Geography: Adapting the Game of the Goose</h3>
+          <p>
+            To make global geography memorable for aristocratic youths and polite salons, Du Val fused cartography with the 63-space spiral of the <em>Jeu de l’Oie</em> (Game of the Goose). Players cast two dice to travel inward from the farthest periphery of European exploration toward Paris, encountering oceanic straits, trade winds, quarantines, and shipwrecks along the way.
+          </p>
+          <blockquote class="pull-quote">
+            “The object of the game is to progress from the outer parts of the world in towards the center—France.”
+          </blockquote>
+          <p>
+            Two miniature inset hemisphere maps in the upper corners anchored the spiral visually, while restrained hand-applied color washes separated continents and kingdoms on the copperplate paper.
+          </p>
+        </article>
+
+        <article>
+          <h3>California as an Island &amp; Eurocentric Cosmology</h3>
+          <p>
+            <em>Le Jeu du Monde</em> is a time capsule of mid-17th-century geographical certainty and illusion. In <strong>Circle 5</strong>, California appears unmistakably as a detached island off New Spain—an error born from misread 1602 Pacific accounts and popular 1620s London and Amsterdam engravings that French cartographers would not fully abandon until Father Eusebio Kino’s overland surveys after 1701.
+          </p>
+          <p>
+            Equally revealing is the game’s geometry: placing France at Circle 63 casts Europe as the gravitational goal of human navigation. Non-European continents fill the outer turns, whereas European principalities expand to nearly one-third of all spaces as the spiral tightens toward the French capital.
+          </p>
+        </article>
+      </div>
+
+      <div class="footer-provenance">
+        <span>Sources &amp; Provenance: Pierre Du Val, <em>Le Jeu du Monde</em> (Paris, 1645; List No. 6728.000, David Rumsey Historical Map Collection; Bibliothèque nationale de France; Hennin 3477; rules documented in Hartlib Papers 8A/06). Modern vector coastlines from Natural Earth (110m public domain).</span>
+        <span>Note: Circles 5 (California as an island) and 63 (France at center) match the catalogue record directly; intermediate circle assignments reconstruct 1645 French geographical nomenclature across the 63-space spiral.</span>
+      </div>
+    </section>
+  </div>
+
+  <api-shim></api-shim>
+  <script>
+    const CIRCLES = [
+      { id: 1, fr: `Terre Australe Inconnue`, en: `Unknown Southern Land`, zone: `Americas`, lat: -62.0, lon: -70.0, accuracy: `Myth / Misconception`, ruleType: `normal`, ruleText: `Starting Space — embark toward the Americas on your opening two-dice roll.`, summary: `On 1645 French maps, a massive hypothetical southern continent stretched across the bottom of the globe to balance the landmasses of the northern hemisphere.`, misconception: `Cartographers believed a giant habitable continent had to exist at the South Pole to keep Earth in equilibrium; Cook’s voyages over a century later disproved it.` },
+      { id: 2, fr: `Détroit de Magellan`, en: `Strait of Magellan & Tierra del Fuego`, zone: `Americas`, lat: -53.5, lon: -70.0, accuracy: `Partial`, ruleType: `normal`, ruleText: `Standard Space — navigate the southern passage.`, summary: `The treacherous passage between Patagonia and Tierra del Fuego was Europe’s primary sea gate into the Pacific until Willem Schouten and Jacob Le Maire rounded Cape Horn in 1616.`, misconception: `Early maps often joined Tierra del Fuego directly to Terra Australis before Le Maire proved it was an island.` },
+      { id: 3, fr: `Le Chili & Pérou`, en: `Chile & Viceroyalty of Peru`, zone: `Americas`, lat: -18.0, lon: -72.0, accuracy: `Partial`, ruleType: `normal`, ruleText: `Standard Space — Andean silver ports.`, summary: `To 17th-century Paris, Peru meant unimaginable wealth flowing from the silver mines of Potosí down to Lima and the Pacific coast.`, misconception: `Mountain chains and Amazonian headwaters in the Andean interior were drawn largely from secondhand Spanish reports.` },
+      { id: 4, fr: `Le Brésil`, en: `Brazil`, zone: `Americas`, lat: -12.0, lon: -42.0, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — Atlantic sugar coast.`, summary: `In 1645, northeastern Brazil was a fierce battleground between Portuguese colonists and the Dutch West India Company over sugar plantations and Recife.`, misconception: `While the coastline was well charted by Portuguese pilots, the deep interior remained an imaginative blank filled with vignettes.` },
+      { id: 5, fr: `L’Île de Californie`, en: `California (Depicted as an Island)`, zone: `Americas`, lat: 27.0, lon: -112.0, accuracy: `Myth / Misconception`, ruleType: `delay`, ruleText: `Cartographic Delay (Classic Rules): Mistaken strait slows your voyage — skip 1 turn while surveying the coast.`, summary: `Explicitly noted in Du Val’s 1645 board at Circle 5, California appears here as a long detached island separated from mainland North America by the Vermilion Sea.`, misconception: `Following Carmelite friar Antonio de la Ascensión’s 1602 claim and Henry Briggs’s 1622 London map, European workshops drew California as an island until Jesuit Father Kino proved it a peninsula in 1701–1705.` },
+      { id: 6, fr: `Le Mexique ou Nouvelle-Espagne`, en: `Mexico & New Spain`, zone: `Americas`, lat: 20.0, lon: -99.0, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — seat of Spanish North America.`, summary: `Centered on Mexico City, New Spain anchored Europe’s understanding of North America, linking Caribbean silver fleets to the Manila galleons at Acapulco.`, misconception: `Northern boundaries blurred unpredictably into mythical kingdoms like Quivira and Cibola.` },
+      { id: 7, fr: `La Floride`, en: `Florida`, zone: `Americas`, lat: 29.5, lon: -82.0, accuracy: `Partial`, ruleType: `normal`, ruleText: `Standard Space — Gulf and Atlantic littoral.`, summary: `French maps of the 1640s used "La Floride" to cover not just the peninsula but much of the modern American Southeast, recalling short-lived 16th-century Huguenot settlements.`, misconception: `A mythical inland Appalachian lake frequently appeared in central Florida on mid-17th-century French sheets.` },
+      { id: 8, fr: `La Virginie`, en: `Virginia`, zone: `Americas`, lat: 37.5, lon: -77.5, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — Chesapeake tobacco colonies.`, summary: `Founded in 1607, Virginia was recognized in Paris as England’s primary Atlantic foothold, exporting tobacco while competing with French ambitions farther north.`, misconception: `Early 17th-century maps still compressed the distance from the Chesapeake Bay to the Pacific Ocean.` },
+      { id: 9, fr: `La Nouvelle-France (Canada)`, en: `New France & Canada`, zone: `Americas`, lat: 47.0, lon: -71.2, accuracy: `Partial`, ruleType: `boost`, ruleText: `Royal Courier (+3 Spaces): Favorable St. Lawrence dispatch advances you 3 circles toward Circle 12!`, summary: `With Québec (1608) and Ville-Marie/Montreal (1642) newly established, New France represented Louis XIV-era France’s grand North American stake along the St. Lawrence.`, misconception: `The western Great Lakes were only beginning to be sketched from Wendat and Algonquin guides; Lake Superior’s true scale remained uncertain.` },
+      { id: 10, fr: `L’Acadie & Terre-Neuve`, en: `Acadia & Newfoundland`, zone: `Americas`, lat: 47.2, lon: -55.5, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — Grand Banks fishing fleets.`, summary: `Breton, Norman, and Basque fishermen crossed the Atlantic every spring to dry cod along Newfoundland and Acadia long before formal colonies took root.`, misconception: `Newfoundland was frequently fractured into multiple islands by misty tidal channels on 1640s charts.` },
+      { id: 11, fr: `La Guyane & Lac Parimé`, en: `Guiana & Mythical Lake Parime`, zone: `Americas`, lat: 4.5, lon: -60.0, accuracy: `Myth / Misconception`, ruleType: `normal`, ruleText: `Standard Space — search for the gilded city.`, summary: `Between the Orinoco and Amazon rivers, European cartographers faithfully engraved a sprawling interior sea housing the golden capital of Manoa.`, misconception: `Lake Parime and El Dorado never existed; seasonal flooding of the Rupununi savannah inspired Walter Raleigh’s and Sanson-school mapmakers’ lake.` },
+      { id: 12, fr: `Les Îles Antilles`, en: `The Antilles (Caribbean)`, zone: `Americas`, lat: 16.2, lon: -61.5, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — French Caribbean islands.`, summary: `In 1635 the French Crown chartered the Compagnie des Îles de l’Amérique to settle Martinique and Guadeloupe, turning the Lesser Antilles into prized sugar stations.`, misconception: `Small volcanic islands were often exaggerated in size so their French labels remained legible on world boards.` },
+      { id: 13, fr: `L’Amazone & Quito`, en: `Amazon Basin & Quito`, zone: `Americas`, lat: -3.0, lon: -65.0, accuracy: `Partial`, ruleType: `normal`, ruleText: `Standard Space — meandering river of the Americas.`, summary: `Cartographers rendered the Amazon as a dramatic serpentine ribbon across South America, repeating Orellana’s 1540s tales of female warriors.`, misconception: `The river’s tributaries were routinely fused with the Orinoco and Río de la Plata into an imaginary continental water grid.` },
+      { id: 14, fr: `Le Paraguay & La Plata`, en: `Paraguay & Río de la Plata`, zone: `Americas`, lat: -28.0, lon: -58.5, accuracy: `Partial`, ruleType: `normal`, ruleText: `Standard Space — southern river highway.`, summary: `Known across Europe through published Jesuit mission letters, the Río de la Plata basin appeared as an orderly network leading inland from Buenos Aires.`, misconception: `An imaginary central "Lake Xarayes" was commonly drawn as the shared northern source of the Paraguay River.` },
+      { id: 15, fr: `La Mer du Nord (Atlantique)`, en: `North Atlantic Crossing`, zone: `Americas`, lat: 32.0, lon: -42.0, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — transoceanic wind crossing.`, summary: `French maps called the North Atlantic "Mer du Nord" (in contrast to the Pacific "Mer du Sud"), filling open waters with rhumb lines and sailing vessels.`, misconception: `Without reliable marine chronometers (invented a century later), east-west longitude across the Atlantic still drifted by hundreds of leagues.` },
+      { id: 16, fr: `Les Canaries & L’Île de Fer`, en: `Canary Islands & El Hierro Meridian`, zone: `Americas`, lat: 28.0, lon: -16.5, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — pass the 1634 French Prime Meridian.`, summary: `By royal decree of Louis XIII in 1634, France fixed 0° longitude at El Hierro (Île de Fer), the westernmost Canary Island—used by Du Val and Sanson for generations.`, misconception: `Separating Old World from New at El Hierro reinforced Europe’s conceptual boundary between West and East.` },
+      { id: 17, fr: `Le Cap-Vert & Sénégal`, en: `Cape Verde & Senegal`, zone: `Africa`, lat: 15.0, lon: -17.0, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — gateway to West Africa.`, summary: `French merchants from Dieppe and Rouen had traded along the Senegal coast since the 1630s for gum arabic, ivory, and gold.`, misconception: `Mapmakers fused the Senegal and Gambia rivers with the distant Niger, assuming one giant waterway crossed the continent.` },
+      { id: 18, fr: `La Guinée`, en: `Guinea Coast`, zone: `Africa`, lat: 6.0, lon: -2.0, accuracy: `Partial`, ruleType: `boost`, ruleText: `Trade Current (+3 Spaces): Coastal winds speed your caravel 3 circles forward!`, summary: `Labeled for European commodity zones—Grain Coast, Ivory Coast, Gold Coast—West Africa’s shoreline was densely named while its sovereign states lay unmapped.`, misconception: `Coastal fortress names crowded the shoreline while interior kingdoms were reduced to broad decorative labels.` },
+      { id: 19, fr: `Le Cap de Bonne-Espérance`, en: `Cape of Good Hope`, zone: `Africa`, lat: -34.0, lon: 18.4, accuracy: `Accurate`, ruleType: `delay`, ruleText: `Cape of Storms (Classic Rules): Gale winds detain your vessel at the Cape — skip 1 turn.`, summary: `Rounding southern Africa was the decisive turning point of every voyage to India; just seven years after 1645, the Dutch would establish Cape Town here.`, misconception: `Early maps still drew Africa’s southern tip slightly too narrow or populated the hinterland with semi-mythical pastoral tribes.` },
+      { id: 20, fr: `Le Royaume de Congo`, en: `Kingdom of Kongo`, zone: `Africa`, lat: -6.0, lon: 14.5, accuracy: `Partial`, ruleType: `normal`, ruleText: `Standard Space — diplomatic kingdom of Central Africa.`, summary: `Unlike much of interior Africa, Kongo was respected in 17th-century European atlases as a Christianized monarchy that exchanged ambassadors with Rome and Lisbon.`, misconception: `Cartographers stretched Kongo’s borders far deeper eastward to touch imaginary central lakes.` },
+      { id: 21, fr: `Madagascar (Île Dauphine)`, en: `Madagascar`, zone: `Africa`, lat: -19.0, lon: 47.0, accuracy: `Partial`, ruleType: `normal`, ruleText: `Standard Space — French Indian Ocean outpost.`, summary: `In 1643, just two years before Du Val engraved this game, the French East India Company founded Fort-Dauphin on Madagascar, renaming it Île Dauphine for the young Louis XIV.`, misconception: `Paris promoters wildly overestimated the island’s immediate navigability and mineral wealth.` },
+      { id: 22, fr: `Le Monomotapa`, en: `Empire of Monomotapa`, zone: `Africa`, lat: -18.5, lon: 31.0, accuracy: `Myth / Misconception`, ruleType: `normal`, ruleText: `Standard Space — fabled southeastern gold realm.`, summary: `European engravers depicted the Mutapa state of southern Africa as a sprawling golden empire rivaling Peru, often linking it to biblical Ophir.`, misconception: `Its stone enclosures and capital were drawn in European Renaissance-palace iconography rather than actual survey.` },
+      { id: 23, fr: `Empire du Prêtre Jean`, en: `Abyssinia & Prester John`, zone: `Africa`, lat: 10.0, lon: 39.0, accuracy: `Myth / Misconception`, ruleType: `normal`, ruleText: `Standard Space — realm of the legendary Christian king.`, summary: `Even in 1645, French mapmakers continued to label Ethiopia and the Horn of Africa as the domain of "Prester John," the mythical medieval Christian monarch.`, misconception: `Although Portuguese Jesuits had visited Ethiopia since the 1520s, the romantic medieval title persisted on popular educational maps.` },
+      { id: 24, fr: `La Nubie`, en: `Nubia`, zone: `Africa`, lat: 18.5, lon: 32.0, accuracy: `Partial`, ruleType: `normal`, ruleText: `Standard Space — Upper Nile caravan corridor.`, summary: `Positioned between Egypt and Abyssinia, Nubia appeared on 1645 maps primarily through classical Greek and Arab travel excerpts rather than direct European visits.`, misconception: `The Nile’s great Dongola bend was frequently straightened or paired with phantom tributaries.` },
+      { id: 25, fr: `La Nigritie & Tombouctou`, en: `Nigritia & Timbuktu`, zone: `Africa`, lat: 16.7, lon: -3.0, accuracy: `Myth / Misconception`, ruleType: `normal`, ruleText: `Standard Space — trans-Saharan gold crossroads.`, summary: `Timbuktu’s scholarly fame echoed through Leo Africanus’s 16th-century book, which served as Paris cartographers’ sole guide to the West African Sahel.`, misconception: `For another 150 years, European maps depicted the Niger River flowing westward into the Atlantic rather than east and south.` },
+      { id: 26, fr: `L’Égypte`, en: `Egypt`, zone: `Africa`, lat: 27.0, lon: 31.0, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — Ottoman Nile & Alexandrian port.`, summary: `Under Ottoman rule, Cairo and Alexandria remained vital hubs for French Levant merchants trading Mediterranean cloth for spices and drugs.`, misconception: `While the Nile Delta was accurately drawn, the river’s upper sources remained pure conjecture.` },
+      { id: 27, fr: `La Barbarie (Alger & Tunis)`, en: `Barbary Coast`, zone: `Africa`, lat: 36.5, lon: 5.0, accuracy: `Accurate`, ruleType: `boost`, ruleText: `Mediterranean Passage (+3 Spaces): Favorable corsair truce lets you sail 3 circles ahead!`, summary: `The North African regencies of Algiers, Tunis, and Tripoli sat just across the sea from Marseille, closely tracked in Paris for maritime trade and ransom diplomacy.`, misconception: `Atlas mountain ranges were drawn schematically as neat rows of molehills separating coast from desert.` },
+      { id: 28, fr: `Les Montagnes de la Lune`, en: `Mountains of the Moon`, zone: `Africa`, lat: 0.5, lon: 29.5, accuracy: `Myth / Misconception`, ruleType: `normal`, ruleText: `Standard Space — Ptolemaic source of the Nile.`, summary: `Faithfully copied from Claudius Ptolemy’s 2nd-century Geographia, twin African lakes fed by snowy "Mountains of the Moon" anchored every 1645 map of Africa.`, misconception: `Though the Ruwenzori mountains exist, the symmetrical twin lakes feeding a straight Nile were an ancient geometric hypothesis.` },
+      { id: 29, fr: `L’Arabie Heureuse & Déserte`, en: `Arabia`, zone: `Asia`, lat: 22.0, lon: 45.0, accuracy: `Partial`, ruleType: `normal`, ruleText: `Standard Space — Red Sea and incense peninsula.`, summary: `Following classical Roman divisions into Arabia Petraea, Deserta, and Felix, French maps highlighted Mocha and Aden for Europe’s rising appetite for coffee.`, misconception: `The vast Rub’ al Khali desert interior was largely speculative outside coastal Red Sea pilot charts.` },
+      { id: 30, fr: `La Terre Sainte & Syrie`, en: `Holy Land & Syria`, zone: `Asia`, lat: 32.0, lon: 36.0, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — Jerusalem & Aleppo caravans.`, summary: `Aleppo and Smyrna were the jewels of French Mediterranean commerce, while Palestine received dense biblical annotations on every Paris world map.`, misconception: `Ancient Israelite tribal borders were frequently overlaid atop contemporary Ottoman provinces.` },
+      { id: 31, fr: `La Perse`, en: `Safavid Persia`, zone: `Asia`, lat: 32.5, lon: 53.0, accuracy: `Accurate`, ruleType: `delay`, ruleText: `Royal Caravanserai (Classic Rules): Silk customs inspection in Ispahan holds you for 1 turn.`, summary: `In 1645, Safavid Persia under Shah Abbas II welcomed French Capuchin missions and jewelers like Jean-Baptiste Tavernier, making Ispahan famous in Paris.`, misconception: `Persia’s eastern Khorasan boundary shifted ambiguously toward Tartary on contemporary boards.` },
+      { id: 32, fr: `Empire du Grand Mogol`, en: `Mughal India`, zone: `Asia`, lat: 24.5, lon: 78.0, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — court of Shah Jahan.`, summary: `At the height of Shah Jahan’s reign—just as the Taj Mahal neared completion—Mughal India was depicted in Paris as Asia’s wealthiest terrestrial empire.`, misconception: `Northern Himalayan kingdoms were compressed tightly between Agra and mythical Tartary.` },
+      { id: 33, fr: `Goa & Côte de Malabar`, en: `Goa & Malabar Coast`, zone: `Asia`, lat: 13.0, lon: 75.5, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — pepper ports of western India.`, summary: `Goa, Calicut, and Surat formed the maritime pulse of Indian Ocean trade, densely charted from Portuguese and Dutch roteiros (sailing manuals).`, misconception: `The Indian peninsula’s width was sometimes narrowed slightly on mid-century continental projections.` },
+      { id: 34, fr: `L’Île de Ceylan`, en: `Ceylon (Sri Lanka)`, zone: `Asia`, lat: 7.8, lon: 80.8, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — cinnamon island.`, summary: `Famed as the world’s premier source of fine cinnamon, Ceylon was actively contested in the 1640s as Dutch forces displaced Portuguese coastal forts.`, misconception: `Residual Ptolemaic traditions occasionally caused 17th-century engravers to draw Ceylon slightly oversized.` },
+      { id: 35, fr: `Siam & Pégou`, en: `Siam & Pegu`, zone: `Asia`, lat: 14.5, lon: 101.0, accuracy: `Partial`, ruleType: `normal`, ruleText: `Standard Space — Southeast Asian kingdoms.`, summary: `Ayutthaya (Siam) and Burma (Pegu) stood as celebrated trading courts of mainland Southeast Asia, later sending famous embassies to Louis XIV.`, misconception: `The Mekong and Chao Phraya rivers were commonly merged with the mythical Lake Chiamay in the Asian interior.` },
+      { id: 36, fr: `Presqu’île de Malacca`, en: `Malacca Strait`, zone: `Asia`, lat: 2.8, lon: 102.2, accuracy: `Accurate`, ruleType: `boost`, ruleText: `Monsoon Tailwind (+3 Spaces): Catch the seasonal strait current forward 3 circles!`, summary: `Captured by the Dutch from Portugal in 1641, Malacca controlled the vital maritime choke point between the Indian Ocean and the South China Sea.`, misconception: `Coastal precision was high, though the Malay Peninsula’s interior mountains remained largely unvisited by Europeans.` },
+      { id: 37, fr: `Les Moluques & Java`, en: `Spice Islands & Java`, zone: `Asia`, lat: -6.2, lon: 112.0, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — cloves, nutmeg, and Batavia.`, summary: `From Batavia (Jakarta) to Banda and Ternate, the Indonesian archipelago was Europe’s coveted source of cloves and nutmeg under Dutch monopoly.`, misconception: `New Guinea and northern Australia (New Holland) often merged ambiguously along the eastern border of the archipelago.` },
+      { id: 38, fr: `Les Îles Philippines`, en: `The Philippines`, zone: `Asia`, lat: 14.5, lon: 121.0, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — Manila galleon hub.`, summary: `Spanish Manila bridged Asian silks and porcelains with Mexican silver, serving as an essential Pacific node on 1645 world maps.`, misconception: `Smaller islands of the Visayas and Mindanao were routinely simplified into schematic clusters.` },
+      { id: 39, fr: `La Chine (Cathay)`, en: `China`, zone: `Asia`, lat: 34.5, lon: 112.0, accuracy: `Partial`, ruleType: `normal`, ruleText: `Standard Space — Ming-Qing transition.`, summary: `Just one year after the fall of Beijing in 1644, Paris scholars were absorbing Jesuit accounts confirming that Marco Polo’s "Cathay" and China were the same empire.`, misconception: `Some 1640s maps still printed "Cathay" north of the Great Wall as if it were a separate kingdom from southern China.` },
+      { id: 40, fr: `Le Japon`, en: `Japan`, zone: `Asia`, lat: 36.2, lon: 138.2, accuracy: `Partial`, ruleType: `normal`, ruleText: `Standard Space — closed Tokugawa archipelago.`, summary: `Under the Tokugawa shogunate’s 1639 sakoku edicts, only Dutch traders at Nagasaki retained access, turning Japan into an object of intense European curiosity.`, misconception: `Northern Hokkaido ("Terre d’Eso") was wildly distorted—sometimes drawn as a giant continent linking Japan to North America.` },
+      { id: 41, fr: `La Grande Tartarie`, en: `Great Tartary`, zone: `Asia`, lat: 48.0, lon: 92.0, accuracy: `Myth / Misconception`, ruleType: `normal`, ruleText: `Standard Space — vast Eurasian steppe.`, summary: `"Tartarie" served 17th-century French cartographers as a sweeping label for everything from the Caspian Sea to Siberia and Mongolia.`, misconception: `Maps still sprinkled medieval legends across the steppe, including Gog and Magog and nomadic "hordes" with fixed geometric borders.` },
+      { id: 42, fr: `Détroit d’Anian`, en: `Strait of Anian (North Labyrinth)`, zone: `Asia`, lat: 62.0, lon: -165.0, accuracy: `Myth / Misconception`, ruleType: `hazard`, ruleText: `Cartographic Labyrinth (Classic Rules): Lost in imaginary Arctic ice! Retreat back to Circle 35 (Siam).`, summary: `Analogous to Circle 42 (the Labyrinth) in the classic Game of the Goose, the mythical Strait of Anian was drawn separating Asia from North America long before Bering’s voyage.`, misconception: `Invented by Giacomo Gastaldi in 1562 from a misreading of Marco Polo, Anian fluctuated wildly on 1645 maps before Bering proved a strait actually existed in 1728.` },
+      { id: 43, fr: `La Mer Caspienne`, en: `Caspian Sea`, zone: `Asia`, lat: 41.5, lon: 51.0, accuracy: `Partial`, ruleType: `normal`, ruleText: `Standard Space — inland Silk Road sea.`, summary: `Positioned at the hinge of Asia and Europe, the Caspian remained a puzzle for Paris geographers relying on Persian and Russian itineraries.`, misconception: `Until French astronomers reviewed Russian surveys in 1721, European maps drew the Caspian wide and oval east-to-west rather than elongated north-to-south.` },
+      { id: 44, fr: `La Natolie (Turquie)`, en: `Anatolia (Ottoman Asia)`, zone: `Asia`, lat: 39.0, lon: 34.0, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — threshold of Europe.`, summary: `Leaving Asia through Anatolia, players cross the Bosporus toward Europe—mirroring how French ambassadors traveled between Paris and Constantinople.`, misconception: `Classical provinces (Phrygia, Bithynia, Galatia) often overshadowed contemporary Ottoman administrative boundaries.` },
+      { id: 45, fr: `La Moscovie`, en: `Muscovy (Russia)`, zone: `Europe`, lat: 56.0, lon: 38.0, accuracy: `Partial`, ruleType: `boost`, ruleText: `Winter Post (+3 Spaces): Fast royal sleigh relays carry you 3 circles deeper into Europe!`, summary: `Centered on Moscow and the Volga corridor, Muscovy marked the outer eastern edge of European Christendom on Du Val’s inward spiral.`, misconception: `Beyond the Urals, Muscovy’s Siberian expansion toward the Pacific was only vaguely sketched in 1645.` },
+      { id: 46, fr: `La Pologne`, en: `Polish-Lithuanian Commonwealth`, zone: `Europe`, lat: 52.0, lon: 21.0, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — Baltic-to-Black Sea crown.`, summary: `One of Europe’s largest states in 1645, Poland held close royal ties with France—in this very year King Władysław IV married French princess Marie Louise Gonzaga.`, misconception: `Eastern steppe borders along the Dnieper shifted continuously in printed editions.` },
+      { id: 47, fr: `La Suède & Laponie`, en: `Sweden & Lapland`, zone: `Europe`, lat: 61.5, lon: 16.0, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — Baltic military power.`, summary: `France’s key Protestant ally in the Thirty Years’ War, Queen Christina’s Sweden commanded the Baltic while northern Lapland remained exotic to Parisian readers.`, misconception: `Arctic Scandinavia still retained exaggerated coastlines and illustrations of reindeer sleds and weather-magic.` },
+      { id: 48, fr: `Danemark & Norvège`, en: `Denmark & Norway`, zone: `Europe`, lat: 56.0, lon: 10.0, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — guardians of the Sound.`, summary: `Controlling the narrow Øresund strait into the Baltic Sea, Copenhagen collected tolls from French, Dutch, and English grain ships.`, misconception: `Far northern Norwegian fjords were simplified along curved coastal arcs.` },
+      { id: 49, fr: `La Grèce & Morée`, en: `Greece`, zone: `Europe`, lat: 38.0, lon: 23.0, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — cradle of classical geography.`, summary: `Though ruled by the Ottoman Empire in 1645, Greece occupied prime visual space on French boards as the birthplace of Ptolemy, Strabo, and classical letters.`, misconception: `Ancient city-states like Sparta and Thebes were labeled more prominently than existing Ottoman towns.` },
+      { id: 50, fr: `La Hongrie`, en: `Hungary & Transylvania`, zone: `Europe`, lat: 47.2, lon: 19.2, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — Danube frontier.`, summary: `Partitioned among Habsburgs, Ottomans, and Transylvanian princes, Hungary formed the bulwark along the Danube road into Central Europe.`, misconception: `Fortress towns along the Tisza and Danube were prized over rural accuracy.` },
+      { id: 51, fr: `L’Allemagne (Saint-Empire)`, en: `Germany (Holy Roman Empire)`, zone: `Europe`, lat: 50.5, lon: 10.5, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — imperial crossroads.`, summary: `In 1645, the Thirty Years’ War was entering its final diplomatic phase toward the Peace of Westphalia (1648), making German principalities vital news in Paris.`, misconception: `Hundreds of tiny imperial territories had to be collapsed under broad circle groupings.` },
+      { id: 52, fr: `L’Italie & Venise`, en: `Italy & Republic of Venice`, zone: `Europe`, lat: 44.5, lon: 11.8, accuracy: `Accurate`, ruleType: `delay`, ruleText: `Venetian Lazaretto (Classic Rules): Plague-era port quarantine holds travelers for 1 turn.`, summary: `Serving as the classic Space 52 "Prison/Quarantine" of the Game of the Goose, Venice and Genoa enforced forty-day quarantines (quarantena) on ships arriving from the Levant.`, misconception: `Italian states were among the best surveyed in Europe, inheriting a century of Renaissance civic mapping.` },
+      { id: 53, fr: `Rome & États de l’Église`, en: `Rome & Papal States`, zone: `Europe`, lat: 41.9, lon: 12.5, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — Eternal City.`, summary: `A cornerstone of Catholic Europe and humanist scholarship, Rome gave French geographers centuries of ecclesiastical archives and travelers’ itineraries.`, misconception: `No major geographical error—cartographic prestige centered on antiquarian monuments.` },
+      { id: 54, fr: `La Suisse`, en: `Swiss Confederacy`, zone: `Europe`, lat: 46.8, lon: 8.2, accuracy: `Accurate`, ruleType: `boost`, ruleText: `Alpine Pass (+2 Spaces): Clear mountain roads propel you 2 circles closer to France!`, summary: `Guarding the Alpine passes between Italy and France, the Swiss cantons supplied elite guard regiments to the French monarchy.`, misconception: `Alpine relief was still rendered in pictorial side-profile "molehills" rather than contour lines.` },
+      { id: 55, fr: `Les Pays-Bas`, en: `The Low Countries`, zone: `Europe`, lat: 52.1, lon: 5.1, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — rival Amsterdam mapmakers.`, summary: `In 1645, Amsterdam houses like Willem Blaeu and Jodocus Hondius led world atlas publishing—the very commercial dominance Du Val and Sanson set out to challenge from Paris.`, misconception: `Polder reclamations changed Dutch coastlines faster than French copperplates updated.` },
+      { id: 56, fr: `L’Angleterre`, en: `England`, zone: `Europe`, lat: 52.3, lon: -1.2, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — Kingdom in civil war.`, summary: `As Du Val engraved his board in 1645, England was torn by the Battle of Naseby and civil war, with Queen Henrietta Maria taking refuge in Paris.`, misconception: `Cross-Channel waters were already among the most precisely sounded seas on Earth.` },
+      { id: 57, fr: `L’Écosse & Irlande`, en: `Scotland & Ireland`, zone: `Europe`, lat: 55.8, lon: -5.0, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — northern & western Isles.`, summary: `Linked to France through the historic "Auld Alliance" and Catholic diplomacy, Scotland and Ireland completed the Atlantic flank of northern Europe.`, misconception: `The Hebrides and western Scottish sea lochs remained slightly compressed on small-scale sheets.` },
+      { id: 58, fr: `Cap Finisterre (Naufrage)`, en: `Cape Finisterre (Shipwreck)`, zone: `Europe`, lat: 42.9, lon: -9.2, accuracy: `Accurate`, ruleType: `hazard`, ruleText: `Space 58 Shipwreck (Classic Rules): Atlantic tempest wrecks your ship just short of Spain — return to Circle 19 (Cape of Good Hope)!`, summary: `Corresponding to Space 58 ("Death") in the traditional 63-space Game of the Goose, rocky Cape Finisterre warned players that hubris near the finish could cast them back to the southern seas.`, misconception: `Historically accurate headland—its Latin name literally meant "End of the Earth."` },
+      { id: 59, fr: `Le Portugal`, en: `Portugal`, zone: `Europe`, lat: 39.4, lon: -8.2, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — Lisbon’s restored crown.`, summary: `Having broken free from Spanish Habsburg rule in 1640, Portugal was freshly recognized by France as an independent maritime kingdom.`, misconception: `Accurately mapped along its Atlantic harbors.` },
+      { id: 60, fr: `L’Espagne`, en: `Spain`, zone: `Europe`, lat: 40.4, lon: -3.7, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — Pyrenees threshold.`, summary: `France’s chief geopolitical rival in 1645, Spain stood directly across the Pyrenees—one final mountain barrier before entering the French realm.`, misconception: `Iberian plateaus were cleanly surveyed along royal post roads.` },
+      { id: 61, fr: `Bourgogne & Lorraine`, en: `Burgundy & Lorraine`, zone: `Europe`, lat: 47.8, lon: 5.2, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Standard Space — eastern gateway duchies.`, summary: `Linking Germany, Switzerland, and Italy to the Paris basin, Burgundy and contested Lorraine marked the penultimate stage on the homeward road.`, misconception: `Exact political borders in Lorraine shifted repeatedly during the Thirty Years’ War.` },
+      { id: 62, fr: `Normandie & Picardie`, en: `Normandy & Picardy`, zone: `Europe`, lat: 49.9, lon: 1.8, accuracy: `Accurate`, ruleType: `normal`, ruleText: `Threshold of Paris — one exact step from victory!`, summary: `Picardy was Pierre Du Val’s own birthplace (Abbeville), and Normandy carried royal Channel ports—the final threshold before the central capital.`, misconception: `Richly detailed along France’s northern coastline and river valleys.` },
+      { id: 63, fr: `La France & Paris`, en: `France & Paris — Center of the World`, zone: `France`, lat: 48.85, lon: 2.35, accuracy: `Accurate`, ruleType: `finish`, ruleText: `Victory Circle 63: Must be landed on by an exact roll! Overshooting bounces you back by the excess spaces.`, summary: `At the focal center of the entire 63-circle spiral sits France—celebrating Paris, the young Louis XIV’s court, and Du Val’s patron the Comte de Vivonne as the pinnacle of geographical order.`, misconception: `Eurocentrism made visual: placing Paris at Circle 63 transformed a world map into a physical procession converging on the French monarchy.` }
+    ];
+
+    /* Runtime state */
+    let appState = {
+      playerCount: 1,
+      ruleMode: `classic`,
+      currentTurn: 0,
+      turnCount: 0,
+      winner: null,
+      players: [
+        { id: 1, name: `Voyageur du Roy`, pos: 1, skipTurns: 0 },
+        { id: 2, name: `Courrier de Vivonne`, pos: 1, skipTurns: 0 }
+      ],
+      lastRoll: [0, 0],
+      selectedCircle: 5,
+      zoneFilter: `All`,
+      chartView: `zone`,
+      exploredIds: [1, 5],
+      gazSortKey: `id`,
+      gazSortDir: `asc`,
+      turnMessage: `Inspecting Circle 5 (California as an Island). Click "Roll 2 Dice" to start your expedition from Circle 1 toward France at Circle 63.`
+    };
+
+    let boardPoints = [];
+    let cartoChart = null;
+    let d3Projection = null;
+    let worldTopoCache = null;
+
+    function cssToken(name) {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+
+    function getCircleById(id) {
+      return CIRCLES.find(c => c.id === id) || CIRCLES[0];
+    }
+
+    function zoneWashToken(zone) {
+      if (zone === `Americas`) return `var(--wash-americas)`;
+      if (zone === `Africa`) return `var(--wash-africa)`;
+      if (zone === `Asia`) return `var(--wash-asia)`;
+      if (zone === `Europe`) return `var(--wash-europe)`;
+      return `var(--wash-france)`;
+    }
+
+    function zoneDataToken(zone) {
+      if (zone === `Americas`) return cssToken(`--data-4`);
+      if (zone === `Africa`) return cssToken(`--data-1`);
+      if (zone === `Asia`) return cssToken(`--data-2`);
+      if (zone === `Europe`) return cssToken(`--data-3`);
+      return cssToken(`--primary`);
+    }
+
+    /* Compute 63 arc-length-parameterized spiral coordinates with zero overlap */
+    function computeSpiralPoints() {
+      const cx = 410;
+      const cy = 310;
+      const samples = 2400;
+      const turns = 3.25;
+      const startAngle = Math.PI * 0.72;
+      const raw = [];
+      let cumLen = [0];
+
+      for (let k = 0; k <= samples; k++) {
+        const u = k / samples;
+        const theta = startAngle + u * turns * 2 * Math.PI;
+        const rx = 342 - u * (342 - 72);
+        const ry = 250 - u * (250 - 54);
+        const x = cx + rx * Math.cos(theta);
+        const y = cy + ry * Math.sin(theta);
+        raw.push({ x, y, u });
+        if (k > 0) {
+          const dx = x - raw[k - 1].x;
+          const dy = y - raw[k - 1].y;
+          cumLen.push(cumLen[k - 1] + Math.hypot(dx, dy));
+        }
+      }
+
+      const totalLen = cumLen[samples];
+      const pts = [];
+      let sIdx = 0;
+
+      for (let i = 0; i < 62; i++) {
+        const target = (i / 61) * totalLen;
+        while (sIdx < samples && cumLen[sIdx] < target) sIdx++;
+        const p = raw[Math.min(sIdx, samples)];
+        const radius = i < 40 ? 17.5 : 15.8;
+        pts.push({ id: i + 1, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, r: radius });
+      }
+      pts.push({ id: 63, x: cx, y: cy, r: 34 });
+      return pts;
+    }
+
+    function renderSpiralBoard() {
+      const trackLayer = document.getElementById(`spiral-track-layer`);
+      const nodesLayer = document.getElementById(`spiral-nodes-layer`);
+      if (!trackLayer || !nodesLayer) return;
+
+      boardPoints = computeSpiralPoints();
+
+      /* Draw connecting spiral track */
+      const pathD = boardPoints.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(` `);
+      trackLayer.innerHTML = `<path class="spiral-track" d="${pathD}" />`;
+
+      /* Draw 63 circles */
+      let nodesHtml = ``;
+      boardPoints.forEach(pt => {
+        const c = getCircleById(pt.id);
+        const isSelected = appState.selectedCircle === c.id;
+        const isDimmed = appState.zoneFilter !== `All` && c.zone !== appState.zoneFilter;
+        const fill = zoneWashToken(c.zone);
+        const strokeColor = c.id === 63 ? `var(--primary)` : `var(--outline)`;
+        const strokeW = c.id === 63 ? 2.5 : 1.3;
+
+        let badge = ``;
+        if (c.accuracy === `Myth / Misconception`) {
+          badge = `<text x="${pt.x + pt.r * 0.68}" y="${pt.y - pt.r * 0.62}" font-family="var(--font-label)" font-size="11" font-weight="700" fill="var(--primary)" text-anchor="middle" pointer-events="none">*</text>`;
+        }
+        let ruleMark = ``;
+        if (c.ruleType === `boost`) {
+          ruleMark = `<text x="${pt.x}" y="${pt.y + pt.r - 4}" font-family="var(--font-label)" font-size="7" font-weight="700" fill="var(--secondary)" text-anchor="middle" pointer-events="none">▲</text>`;
+        } else if (c.ruleType === `delay`) {
+          ruleMark = `<text x="${pt.x}" y="${pt.y + pt.r - 4}" font-family="var(--font-label)" font-size="7" font-weight="700" fill="var(--data-4)" text-anchor="middle" pointer-events="none">■</text>`;
+        } else if (c.ruleType === `hazard`) {
+          ruleMark = `<text x="${pt.x}" y="${pt.y + pt.r - 4}" font-family="var(--font-label)" font-size="7.5" font-weight="700" fill="var(--error)" text-anchor="middle" pointer-events="none">✕</text>`;
+        }
+
+        if (c.id === 63) {
+          nodesHtml += `
+            <g class="circle-node ${isSelected ? 'is-selected' : ''} ${isDimmed ? 'is-dimmed' : ''}" data-circle-id="63" tabindex="0" role="button" aria-label="Circle 63: France and Paris" onclick="selectCircle(63)" onkeydown="handleCircleKey(event, 63)">
+              <circle class="node-ring" cx="${pt.x}" cy="${pt.y}" r="${pt.r}" fill="${fill}" stroke="${strokeColor}" stroke-width="${strokeW}" />
+              <circle cx="${pt.x}" cy="${pt.y}" r="${pt.r - 4}" fill="none" stroke="var(--primary)" stroke-width="0.9" stroke-dasharray="2 2" pointer-events="none" />
+              <text class="node-num-center" x="${pt.x}" y="${pt.y - 4}">63</text>
+              <text class="node-sub-center" x="${pt.x}" y="${pt.y + 11}">FRANCE</text>
+              <text class="node-sub-center" x="${pt.x}" y="${pt.y + 20}">PARIS</text>
+              <title>63. ${c.fr} (${c.en})</title>
+            </g>`;
+        } else {
+          nodesHtml += `
+            <g class="circle-node ${isSelected ? 'is-selected' : ''} ${isDimmed ? 'is-dimmed' : ''}" data-circle-id="${c.id}" tabindex="0" role="button" aria-label="Circle ${c.id}: ${c.en}" onclick="selectCircle(${c.id})" onkeydown="handleCircleKey(event, ${c.id})">
+              <circle class="node-ring" cx="${pt.x}" cy="${pt.y}" r="${pt.r}" fill="${fill}" stroke="${strokeColor}" stroke-width="${strokeW}" />
+              <text class="node-num" x="${pt.x}" y="${pt.y - (c.ruleType !== 'normal' ? 2 : 0)}">${c.id}</text>
+              ${badge}
+              ${ruleMark}
+              <title>${c.id}. ${c.fr} — ${c.en}</title>
+            </g>`;
+        }
+      });
+
+      nodesLayer.innerHTML = nodesHtml;
+      renderTokens();
+    }
+
+    function renderTokens() {
+      const tokensLayer = document.getElementById(`spiral-tokens-layer`);
+      if (!tokensLayer || boardPoints.length < 63) return;
+
+      const activePlayers = appState.players.slice(0, appState.playerCount);
+      let html = ``;
+      activePlayers.forEach((p, idx) => {
+        const pt = boardPoints[Math.max(0, Math.min(62, p.pos - 1))];
+        const offsetX = appState.playerCount === 2 ? (idx === 0 ? -7 : 7) : 0;
+        const offsetY = idx === 0 ? -13 : 11;
+        const fill = idx === 0 ? `var(--primary)` : `var(--tertiary)`;
+        html += `
+          <g class="player-token" transform="translate(${pt.x + offsetX}, ${pt.y + offsetY})">
+            <rect x="-6.5" y="-6.5" width="13" height="13" fill="${fill}" stroke="var(--on-primary)" stroke-width="1.5" />
+            <text x="0" y="0.5" text-anchor="middle" dominant-baseline="central" font-family="var(--font-label)" font-size="8" font-weight="700" fill="var(--on-primary)">P${p.id}</text>
+          </g>`;
+      });
+      tokensLayer.innerHTML = html;
+    }
+
+    function handleCircleKey(evt, id) {
+      if (evt.key === `Enter` || evt.key === ` `) {
+        evt.preventDefault();
+        selectCircle(id);
+      }
+    }
+
+    function renderDice(d1, d2, rolling) {
+      const container = document.getElementById(`dice-pair`);
+      if (!container) return;
+
+      const pipsMap = {
+        0: [],
+        1: [[24, 24]],
+        2: [[14, 14], [34, 34]],
+        3: [[14, 14], [24, 24], [34, 34]],
+        4: [[14, 14], [34, 14], [14, 34], [34, 34]],
+        5: [[14, 14], [34, 14], [24, 24], [14, 34], [34, 34]],
+        6: [[14, 12], [34, 12], [14, 24], [34, 24], [14, 36], [34, 36]]
+      };
+
+      const makeDie = val => {
+        const pips = (pipsMap[val] || pipsMap[1]).map(([cx, cy]) =>
+          `<circle cx="${cx}" cy="${cy}" r="3.6" fill="var(--on-surface)" />`
+        ).join(``);
+        const emptyHint = val === 0 ? `<text x="24" y="25" text-anchor="middle" dominant-baseline="central" font-family="var(--font-headline)" font-size="18" font-weight="700" fill="var(--on-surface-variant)">?</text>` : ``;
+        return `
+          <svg class="die-svg ${rolling ? 'is-rolling' : ''}" viewBox="0 0 48 48" aria-hidden="true">
+            <rect x="2" y="2" width="44" height="44" fill="var(--background)" stroke="var(--outline)" stroke-width="2" />
+            ${pips}
+            ${emptyHint}
+          </svg>`;
+      };
+
+      container.innerHTML = makeDie(d1) + makeDie(d2);
+    }
+
+    function renderPlayersStrip() {
+      const strip = document.getElementById(`players-strip`);
+      if (!strip) return;
+      const activePlayers = appState.players.slice(0, appState.playerCount);
+      strip.innerHTML = activePlayers.map((p, idx) => {
+        const c = getCircleById(p.pos);
+        const isTurn = appState.winner === null && appState.currentTurn === idx;
+        const skipNote = p.skipTurns > 0 ? ` · Delayed (${p.skipTurns})` : ``;
+        return `
+          <div class="player-card ${isTurn ? 'is-turn' : ''}">
+            <div class="player-name">
+              <span class="token-dot ${idx === 0 ? 'token-p1' : 'token-p2'}"></span>
+              <span>P${p.id} · ${p.name}</span>
+            </div>
+            <div class="player-pos">Circle ${p.pos} / 63 — ${c.en}${skipNote}</div>
+          </div>`;
+      }).join(``);
+    }
+
+    function renderStoryCard() {
+      const c = getCircleById(appState.selectedCircle);
+      const zoneTag = document.getElementById(`story-zone-tag`);
+      const accTag = document.getElementById(`story-accuracy-tag`);
+      const frEl = document.getElementById(`story-french`);
+      const enEl = document.getElementById(`story-english`);
+      const sumEl = document.getElementById(`story-summary`);
+      const misBox = document.getElementById(`story-misconception-box`);
+      const misText = document.getElementById(`story-misconception-text`);
+      const ruleNote = document.getElementById(`story-rule-note`);
+      const coordsEl = document.getElementById(`story-coords`);
+      const prevBtn = document.getElementById(`btn-prev-circle`);
+      const nextBtn = document.getElementById(`btn-next-circle`);
+      const kpiCur = document.getElementById(`kpi-current-circle`);
+      const kpiExp = document.getElementById(`kpi-explored-count`);
+
+      const padded = String(c.id).padStart(2, `0`);
+      if (zoneTag) zoneTag.textContent = `CIRCLE ${padded} OF 63 · ${c.zone.toUpperCase()}`;
+      if (accTag) accTag.textContent = c.accuracy.toUpperCase();
+      if (frEl) frEl.textContent = c.fr;
+      if (enEl) enEl.textContent = c.en;
+      if (sumEl) sumEl.textContent = c.summary;
+      if (misText) misText.textContent = c.misconception;
+      if (misBox) misBox.style.display = c.misconception ? `grid` : `none`;
+      if (ruleNote) ruleNote.textContent = `Game Rule: ${c.ruleText}`;
+      if (coordsEl) {
+        const ns = c.lat >= 0 ? `${c.lat.toFixed(1)}° N` : `${Math.abs(c.lat).toFixed(1)}° S`;
+        const ew = c.lon >= 0 ? `${c.lon.toFixed(1)}° E` : `${Math.abs(c.lon).toFixed(1)}° W`;
+        coordsEl.textContent = `Modern Reference: ${ns}, ${ew}`;
+      }
+      if (prevBtn) prevBtn.disabled = c.id <= 1;
+      if (nextBtn) nextBtn.disabled = c.id >= 63;
+      if (kpiCur) kpiCur.textContent = `Circle ${padded}`;
+      if (kpiExp) kpiExp.textContent = `${appState.exploredIds.length} / 63 Circles Examined`;
+
+      const banner = document.getElementById(`turn-banner`);
+      if (banner) banner.textContent = appState.turnMessage;
+    }
+
+    function updateSelectionsUI() {
+      /* Sync SVG circle highlight without full DOM rebuild */
+      document.querySelectorAll(`.circle-node`).forEach(node => {
+        const cid = Number(node.getAttribute(`data-circle-id`));
+        const c = getCircleById(cid);
+        node.classList.toggle(`is-selected`, cid === appState.selectedCircle);
+        node.classList.toggle(`is-dimmed`, appState.zoneFilter !== `All` && c.zone !== appState.zoneFilter);
+      });
+      renderStoryCard();
+      renderD3WorldMapPoints();
+      renderGazetteer();
+    }
+
+    function selectCircle(id) {
+      const clamped = Math.max(1, Math.min(63, Number(id)));
+      appState.selectedCircle = clamped;
+      if (!appState.exploredIds.includes(clamped)) {
+        appState.exploredIds.push(clamped);
+      }
+      updateSelectionsUI();
+      savePersistedState();
+    }
+
+    function stepInspect(delta) {
+      selectCircle(appState.selectedCircle + delta);
+    }
+
+    function setBoardZoneFilter(zone, btn) {
+      appState.zoneFilter = zone;
+      document.querySelectorAll(`.legend-item`).forEach(el => {
+        el.classList.toggle(`is-active`, el.getAttribute(`data-zone-filter`) === zone);
+      });
+      const gazZone = document.getElementById(`gaz-zone`);
+      if (gazZone) gazZone.value = zone;
+      updateSelectionsUI();
+    }
+
+    function setPlayerCount(val) {
+      appState.playerCount = Number(val) === 2 ? 2 : 1;
+      if (appState.currentTurn >= appState.playerCount) appState.currentTurn = 0;
+      renderPlayersStrip();
+      renderTokens();
+      savePersistedState();
+    }
+
+    function setRuleMode(val) {
+      appState.ruleMode = val === `explorer` ? `explorer` : `classic`;
+      appState.turnMessage = appState.ruleMode === `classic`
+        ? `Classic 1645 Rules active: delays, hazards (Circles 42 & 58), and exact roll to reach Paris (63).`
+        : `Storyteller Mode active: advance smoothly through all 63 circles without delays or setbacks.`;
+      renderStoryCard();
+      savePersistedState();
+    }
+
+    function rollDiceTurn() {
+      if (appState.winner !== null) {
+        appState.turnMessage = `Player ${appState.winner} already reached Paris at Circle 63! Click Reset Game to play another expedition.`;
+        renderStoryCard();
+        return;
+      }
+
+      const activeIdx = appState.currentTurn;
+      const player = appState.players[activeIdx];
+
+      if (appState.ruleMode === `classic` && player.skipTurns > 0) {
+        player.skipTurns -= 1;
+        const c = getCircleById(player.pos);
+        appState.turnMessage = `P${player.id} (${player.name}) remains delayed at Circle ${player.pos} (${c.en}).`;
+        if (appState.playerCount === 2) {
+          appState.currentTurn = (activeIdx + 1) % 2;
+        }
+        renderPlayersStrip();
+        renderStoryCard();
+        savePersistedState();
+        return;
+      }
+
+      const d1 = Math.floor(Math.random() * 6) + 1;
+      const d2 = Math.floor(Math.random() * 6) + 1;
+      const sum = d1 + d2;
+      appState.lastRoll = [d1, d2];
+      appState.turnCount += 1;
+
+      renderDice(d1, d2, true);
+      setTimeout(() => renderDice(d1, d2, false), 220);
+
+      const totalEl = document.getElementById(`roll-total-text`);
+      const detailEl = document.getElementById(`roll-detail-text`);
+      if (totalEl) totalEl.textContent = `Rolled ${d1} + ${d2} = ${sum}`;
+
+      const startPos = player.pos;
+      let target = startPos + sum;
+      let eventNote = ``;
+
+      /* Classic 1645 opening roll of 9 */
+      if (appState.ruleMode === `classic` && startPos === 1 && sum === 9) {
+        if ((d1 === 6 && d2 === 3) || (d1 === 3 && d2 === 6)) {
+          target = 26;
+          eventNote = ` Classic 1645 opening 6+3 leaps directly to Circle 26 (Egypt)!`;
+        } else if ((d1 === 5 && d2 === 4) || (d1 === 4 && d2 === 5)) {
+          target = 53;
+          eventNote = ` Classic 1645 opening 5+4 leaps directly to Circle 53 (Rome)!`;
+        }
+      }
+
+      /* Bounce back if overshooting 63 in Classic mode */
+      if (target > 63) {
+        if (appState.ruleMode === `classic`) {
+          const excess = target - 63;
+          target = 63 - excess;
+          eventNote += ` Overshot Paris (63) and bounced back ${excess} space${excess > 1 ? 's' : ''} to Circle ${target}.`;
+        } else {
+          target = 63;
+        }
+      }
+
+      player.pos = target;
+      let landed = getCircleById(target);
+
+      /* Apply special space effects */
+      if (appState.ruleMode === `classic`) {
+        if (landed.id === 9 || landed.id === 18 || landed.id === 27 || landed.id === 36 || landed.id === 45) {
+          player.pos = Math.min(62, landed.id + 3);
+          eventNote += ` Favorable winds at ${landed.en} carry P${player.id} +3 spaces to Circle ${player.pos}!`;
+          landed = getCircleById(player.pos);
+        } else if (landed.id === 54) {
+          player.pos = 56;
+          eventNote += ` Alpine pass speeds P${player.id} +2 spaces to Circle 56 (England)!`;
+          landed = getCircleById(player.pos);
+        } else if (landed.ruleType === `delay`) {
+          player.skipTurns = 1;
+          eventNote += ` Delayed at ${landed.en} — P${player.id} skips next turn.`;
+        } else if (landed.id === 42) {
+          player.pos = 35;
+          eventNote += ` Lost in the Strait of Anian! P${player.id} retreats to Circle 35 (Siam).`;
+          landed = getCircleById(35);
+        } else if (landed.id === 58) {
+          player.pos = 19;
+          eventNote += ` Shipwreck off Cape Finisterre (Space 58)! Cast back to Circle 19 (Cape of Good Hope).`;
+          landed = getCircleById(19);
+        }
+      }
+
+      appState.selectedCircle = landed.id;
+      if (!appState.exploredIds.includes(landed.id)) {
+        appState.exploredIds.push(landed.id);
+      }
+
+      if (landed.id === 63) {
+        appState.winner = player.id;
+        appState.turnMessage = `Victory! P${player.id} (${player.name}) rolled ${sum} and entered France & Paris at Circle 63!`;
+        if (detailEl) detailEl.textContent = `Arrived at Paris (Circle 63)`;
+      } else {
+        appState.turnMessage = `P${player.id} rolled ${sum} (${startPos} → ${landed.id}: ${landed.fr}).${eventNote}`;
+        if (detailEl) detailEl.textContent = `P${player.id} moved from Circle ${startPos} to ${landed.id}`;
+        if (appState.playerCount === 2) {
+          appState.currentTurn = (activeIdx + 1) % 2;
+        }
+      }
+
+      renderTokens();
+      renderPlayersStrip();
+      updateSelectionsUI();
+      savePersistedState();
+    }
+
+    function handleResetGame(btn) {
+      if (!btn) return;
+      if (btn.dataset.armed !== `true`) {
+        btn.dataset.armed = `true`;
+        btn.textContent = `Confirm Reset?`;
+        setTimeout(() => {
+          if (btn.dataset.armed === `true`) {
+            btn.dataset.armed = `false`;
+            btn.textContent = `Reset Game`;
+          }
+        }, 3500);
+        return;
+      }
+      btn.dataset.armed = `false`;
+      btn.textContent = `Reset Game`;
+      appState.players = [
+        { id: 1, name: `Voyageur du Roy`, pos: 1, skipTurns: 0 },
+        { id: 2, name: `Courrier de Vivonne`, pos: 1, skipTurns: 0 }
+      ];
+      appState.currentTurn = 0;
+      appState.turnCount = 0;
+      appState.winner = null;
+      appState.lastRoll = [0, 0];
+      appState.selectedCircle = 1;
+      appState.turnMessage = `Expedition reset to Circle 1 (Terre Australe Inconnue). Roll two dice to embark toward Paris!`;
+
+      const totalEl = document.getElementById(`roll-total-text`);
+      const detailEl = document.getElementById(`roll-detail-text`);
+      if (totalEl) totalEl.textContent = `Ready at Start`;
+      if (detailEl) detailEl.textContent = `Roll two dice to begin from Circle 1`;
+
+      renderDice(0, 0, false);
+      renderTokens();
+      renderPlayersStrip();
+      updateSelectionsUI();
+      savePersistedState();
+    }
+
+    /* Chart.js Analytics */
+    function setChartView(mode) {
+      appState.chartView = mode;
+      const b1 = document.getElementById(`btn-chart-zone`);
+      const b2 = document.getElementById(`btn-chart-accuracy`);
+      if (b1) b1.classList.toggle(`is-selected`, mode === `zone`);
+      if (b2) b2.classList.toggle(`is-selected`, mode === `accuracy`);
+      renderCartoChart();
+    }
+
+    function renderCartoChart() {
+      const canvas = document.getElementById(`cartography-chart`);
+      if (!canvas || typeof Chart === `undefined`) return;
+
+      const zones = [`Americas`, `Africa`, `Asia`, `Europe`, `France`];
+      const zoneLabels = [`Americas (1–16)`, `Africa (17–28)`, `Asia (29–44)`, `Europe (45–62)`, `France (63)`];
+
+      const countsByZone = zones.map(z => CIRCLES.filter(c => c.zone === z).length);
+      const accurateByZone = zones.map(z => CIRCLES.filter(c => c.zone === z && c.accuracy === `Accurate`).length);
+      const partialByZone = zones.map(z => CIRCLES.filter(c => c.zone === z && c.accuracy === `Partial`).length);
+      const mythByZone = zones.map(z => CIRCLES.filter(c => c.zone === z && c.accuracy === `Myth / Misconception`).length);
+
+      const titleEl = document.getElementById(`chart-title`);
+      const subEl = document.getElementById(`chart-subtitle`);
+
+      const cInk = cssToken(`--on-surface`);
+      const cMuted = cssToken(`--on-surface-variant`);
+      const cGrid = cssToken(`--outline-variant`);
+      const c1 = cssToken(`--data-1`);
+      const c2 = cssToken(`--data-2`);
+      const c3 = cssToken(`--data-3`);
+      const c4 = cssToken(`--data-4`);
+
+      if (cartoChart) cartoChart.destroy();
+
+      let datasets = [];
+      if (appState.chartView === `zone`) {
+        if (titleEl) titleEl.textContent = `Distribution of the 63 Circles by Continental Zone`;
+        if (subEl) subEl.textContent = `Click any bar to highlight that region on both the spiral board and world map.`;
+        datasets = [{
+          label: `Number of Circles`,
+          data: countsByZone,
+          backgroundColor: [c4, c1, c2, c3, c1],
+          borderRadius: 0,
+          barThickness: 26
+        }];
+      } else {
+        if (titleEl) titleEl.textContent = `Cartographic Accuracy vs. Myths Across Continental Zones`;
+        if (subEl) subEl.textContent = `Outer-ring circles (Americas, Africa, Asia) concentrate 1645 misconceptions; Europe converges on accuracy.`;
+        datasets = [
+          { label: `Well-Charted`, data: accurateByZone, backgroundColor: c2, borderRadius: 0 },
+          { label: `Partially Surveyed`, data: partialByZone, backgroundColor: c3, borderRadius: 0 },
+          { label: `Myth / Misconception`, data: mythByZone, backgroundColor: c1, borderRadius: 0 }
+        ];
+      }
+
+      cartoChart = new Chart(canvas, {
+        type: `bar`,
+        data: {
+          labels: zoneLabels,
+          datasets: datasets
+        },
+        options: {
+          indexAxis: `y`,
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: function (evt, elements) {
+            if (!elements || elements.length === 0) return;
+            const z = zones[elements[0].index];
+            const btn = document.querySelector(`.legend-item[data-zone-filter="${z}"]`);
+            setBoardZoneFilter(z, btn);
+          },
+          scales: {
+            x: {
+              stacked: appState.chartView === `accuracy`,
+              beginAtZero: true,
+              grid: { color: cGrid },
+              ticks: { color: cMuted, font: { family: `'Source Sans 3', sans-serif`, weight: 700, size: 11 } },
+              border: { color: cInk }
+            },
+            y: {
+              stacked: appState.chartView === `accuracy`,
+              grid: { display: false },
+              ticks: { color: cInk, font: { family: `'Source Sans 3', sans-serif`, weight: 700, size: 12 } },
+              border: { color: cInk }
+            }
+          },
+          plugins: {
+            legend: {
+              display: appState.chartView === `accuracy`,
+              position: `bottom`,
+              labels: { color: cInk, boxWidth: 12, font: { family: `'Source Sans 3', sans-serif`, weight: 700, size: 11 } }
+            },
+            tooltip: {
+              backgroundColor: cInk,
+              cornerRadius: 0,
+              titleFont: { family: `'Bitter', serif`, weight: 700 },
+              bodyFont: { family: `'Source Sans 3', sans-serif` }
+            }
+          }
+        }
+      });
+    }
+
+    /* D3 Vector World Map + Corner Hemisphere Insets */
+    function drawFallbackContinents() {
+      const svg = d3.select(`#d3-world-map`);
+      if (svg.empty()) return;
+      d3Projection = d3.geoNaturalEarth1().fitExtent([[12, 12], [628, 338]], { type: `Sphere` });
+      const path = d3.geoPath(d3Projection);
+
+      svg.selectAll(`*`).remove();
+      svg.append(`path`)
+        .datum({ type: `Sphere` })
+        .attr(`d`, path)
+        .attr(`fill`, cssToken(`--ocean-wash`))
+        .attr(`stroke`, cssToken(`--outline`));
+      svg.append(`path`)
+        .datum(d3.geoGraticule10())
+        .attr(`d`, path)
+        .attr(`fill`, `none`)
+        .attr(`stroke`, cssToken(`--outline-variant`))
+        .attr(`stroke-width`, 0.7);
+      svg.append(`g`).attr(`id`, `d3-land-group`);
+      svg.append(`g`).attr(`id`, `d3-route-group`);
+      svg.append(`g`).attr(`id`, `d3-points-group`);
+    }
+
+    function renderCornerInsets(landGeo) {
+      if (typeof d3 === `undefined`) return;
+      const configs = [
+        { id: `#inset-west-geo`, rot: [85, -15] },
+        { id: `#inset-east-geo`, rot: [-25, -20] }
+      ];
+      configs.forEach(cfg => {
+        const g = d3.select(cfg.id);
+        if (g.empty()) return;
+        g.selectAll(`*`).remove();
+        const proj = d3.geoOrthographic().scale(44).translate([0, 0]).rotate(cfg.rot);
+        const path = d3.geoPath(proj);
+        g.append(`path`).datum({ type: `Sphere` }).attr(`d`, path).attr(`fill`, cssToken(`--ocean-wash`)).attr(`stroke`, cssToken(`--outline`)).attr(`stroke-width`, 0.9);
+        g.append(`path`).datum(d3.geoGraticule10()).attr(`d`, path).attr(`fill`, `none`).attr(`stroke`, cssToken(`--outline-variant`)).attr(`stroke-width`, 0.45);
+        if (landGeo) {
+          g.append(`g`).selectAll(`path`).data(landGeo.features).join(`path`)
+            .attr(`d`, path)
+            .attr(`fill`, cssToken(`--land-wash`))
+            .attr(`stroke`, cssToken(`--outline-variant`))
+            .attr(`stroke-width`, 0.4);
+        }
+      });
+    }
+
+    function renderD3WorldMapPoints() {
+      if (typeof d3 === `undefined` || !d3Projection) return;
+      const routeGroup = d3.select(`#d3-route-group`);
+      const pointsGroup = d3.select(`#d3-points-group`);
+      if (routeGroup.empty() || pointsGroup.empty()) return;
+
+      const coords = CIRCLES.map(c => d3Projection([c.lon, c.lat])).filter(Boolean);
+      const lineGen = d3.line();
+      routeGroup.selectAll(`*`).remove();
+      routeGroup.append(`path`)
+        .datum(coords)
+        .attr(`d`, lineGen)
+        .attr(`fill`, `none`)
+        .attr(`stroke`, cssToken(`--outline-variant`))
+        .attr(`stroke-width`, 1.1)
+        .attr(`stroke-dasharray`, `3 2`);
+
+      pointsGroup.selectAll(`*`).remove();
+      const circlesSel = pointsGroup.selectAll(`g`)
+        .data(CIRCLES)
+        .join(`g`)
+        .attr(`transform`, d => {
+          const xy = d3Projection([d.lon, d.lat]);
+          return xy ? `translate(${xy[0]}, ${xy[1]})` : `translate(-100, -100)`;
+        })
+        .style(`cursor`, `pointer`)
+        .on(`click`, (evt, d) => selectCircle(d.id));
+
+      circlesSel.append(`circle`)
+        .attr(`r`, d => d.id === appState.selectedCircle ? 7 : (d.id === 63 ? 6 : 3.6))
+        .attr(`fill`, d => d.id === appState.selectedCircle ? cssToken(`--primary`) : zoneDataToken(d.zone))
+        .attr(`fill-opacity`, d => (appState.zoneFilter === `All` || d.zone === appState.zoneFilter) ? 0.92 : 0.22)
+        .attr(`stroke`, d => d.id === appState.selectedCircle ? cssToken(`--on-surface`) : cssToken(`--background`))
+        .attr(`stroke-width`, d => d.id === appState.selectedCircle ? 1.8 : 0.8);
+
+      circlesSel.append(`title`)
+        .text(d => `${d.id}. ${d.fr} (${d.en}) — ${d.accuracy}`);
+    }
+
+    function initVectorMaps() {
+      drawFallbackContinents();
+      renderCornerInsets(null);
+      renderD3WorldMapPoints();
+
+      if (typeof topojson === `undefined`) return;
+      fetch(`https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json`)
+        .then(r => r.json())
+        .then(topo => {
+          worldTopoCache = topojson.feature(topo, topo.objects.countries);
+          const landGroup = d3.select(`#d3-land-group`);
+          if (!landGroup.empty() && d3Projection) {
+            const path = d3.geoPath(d3Projection);
+            landGroup.selectAll(`path`)
+              .data(worldTopoCache.features)
+              .join(`path`)
+              .attr(`d`, path)
+              .attr(`fill`, cssToken(`--land-wash`))
+              .attr(`stroke`, cssToken(`--outline-variant`))
+              .attr(`stroke-width`, 0.5);
+          }
+          renderCornerInsets(worldTopoCache);
+          renderD3WorldMapPoints();
+        })
+        .catch(() => {
+          const status = document.getElementById(`d3-map-status`);
+          if (status) status.textContent = `Graticule fallback active (Natural Earth TopoJSON unavailable offline). Plotted coordinates remain interactive.`;
+        });
+    }
+
+    /* Searchable 63-Circle Gazetteer */
+    function setGazSort(key) {
+      if (appState.gazSortKey === key) {
+        appState.gazSortDir = appState.gazSortDir === `asc` ? `desc` : `asc`;
+      } else {
+        appState.gazSortKey = key;
+        appState.gazSortDir = `asc`;
+      }
+      renderGazetteer();
+    }
+
+    function clearGazetteerFilters() {
+      const s = document.getElementById(`gaz-search`);
+      const z = document.getElementById(`gaz-zone`);
+      const a = document.getElementById(`gaz-accuracy`);
+      if (s) s.value = ``;
+      if (z) z.value = `All`;
+      if (a) a.value = `All`;
+      setBoardZoneFilter(`All`, document.querySelector(`.legend-item[data-zone-filter="All"]`));
+    }
+
+    function renderGazetteer() {
+      const tbody = document.getElementById(`gazetteer-tbody`);
+      const countLine = document.getElementById(`gaz-count-line`);
+      if (!tbody) return;
+
+      const query = (document.getElementById(`gaz-search`)?.value || ``).trim().toLowerCase();
+      const zone = document.getElementById(`gaz-zone`)?.value || `All`;
+      const acc = document.getElementById(`gaz-accuracy`)?.value || `All`;
+
+      let filtered = CIRCLES.filter(c => {
+        if (zone !== `All` && c.zone !== zone) return false;
+        if (acc !== `All` && c.accuracy !== acc) return false;
+        if (query) {
+          const hay = `${c.id} ${c.fr} ${c.en} ${c.summary} ${c.misconception || ''}`.toLowerCase();
+          if (!hay.includes(query)) return false;
+        }
+        return true;
+      });
+
+      const dir = appState.gazSortDir === `asc` ? 1 : -1;
+      const key = appState.gazSortKey;
+      filtered.sort((a, b) => {
+        if (key === `id`) return (a.id - b.id) * dir;
+        return String(a[key]).localeCompare(String(b[key])) * dir;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6">No circles match the current search or filter criteria. Clear filters to view all 63 spaces.</td></tr>`;
+      } else {
+        tbody.innerHTML = filtered.map(c => {
+          const sel = c.id === appState.selectedCircle ? `is-selected` : ``;
+          const accLabel = c.accuracy === `Myth / Misconception`
+            ? `<span class="tag-claret">${c.accuracy}</span>`
+            : `<span class="tag">${c.accuracy}</span>`;
+          const ruleSummary = c.ruleType === `normal` ? `Standard` : c.ruleType.toUpperCase();
+          return `
+            <tr class="${sel}" onclick="selectCircle(${c.id}); scrollToSection('sec-board', null);">
+              <td class="num">${String(c.id).padStart(2, '0')}</td>
+              <td><strong>${c.fr}</strong></td>
+              <td>${c.en}</td>
+              <td>${c.zone}</td>
+              <td>${accLabel}</td>
+              <td>${ruleSummary}</td>
+            </tr>`;
+        }).join(``);
+      }
+
+      if (countLine) countLine.textContent = `Showing ${filtered.length} of 63 circles`;
+    }
+
+    function scrollToSection(id, btn) {
+      const target = document.getElementById(id);
+      if (target) target.scrollIntoView({ behavior: `smooth`, block: `start` });
+      if (btn) {
+        document.querySelectorAll(`.masthead-nav button`).forEach(b => b.classList.remove(`is-active`));
+        btn.classList.add(`is-active`);
+      }
+    }
+
+    async function savePersistedState() {
+      if (!window.notebookAppApi || typeof window.notebookAppApi.setAppState !== `function`) return;
+      try {
+        await window.notebookAppApi.setAppState({
+          playerCount: appState.playerCount,
+          ruleMode: appState.ruleMode,
+          currentTurn: appState.currentTurn,
+          turnCount: appState.turnCount,
+          winner: appState.winner,
+          players: appState.players,
+          lastRoll: appState.lastRoll,
+          selectedCircle: appState.selectedCircle,
+          exploredIds: appState.exploredIds
+        });
+      } catch (e) {
+        /* Ignore storage quota or sandbox errors gracefully */
+      }
+    }
+
+    function applyRestoredState(saved) {
+      if (!saved || typeof saved !== `object`) return;
+      if (typeof saved.playerCount === `number`) appState.playerCount = saved.playerCount;
+      if (typeof saved.ruleMode === `string`) appState.ruleMode = saved.ruleMode;
+      if (typeof saved.currentTurn === `number`) appState.currentTurn = saved.currentTurn;
+      if (typeof saved.turnCount === `number`) appState.turnCount = saved.turnCount;
+      if (saved.winner === 1 || saved.winner === 2 || saved.winner === null) appState.winner = saved.winner;
+      if (Array.isArray(saved.players) && saved.players.length === 2) appState.players = saved.players;
+      if (Array.isArray(saved.lastRoll) && saved.lastRoll.length === 2) appState.lastRoll = saved.lastRoll;
+      if (typeof saved.selectedCircle === `number`) appState.selectedCircle = saved.selectedCircle;
+      if (Array.isArray(saved.exploredIds)) appState.exploredIds = saved.exploredIds;
+
+      const sp = document.getElementById(`select-players`);
+      const sr = document.getElementById(`select-rules`);
+      if (sp) sp.value = String(appState.playerCount);
+      if (sr) sr.value = appState.ruleMode;
+    }
+
+    async function initApp() {
+      if (window.notebookAppApi && typeof window.notebookAppApi.getAppState === `function`) {
+        try {
+          const saved = await window.notebookAppApi.getAppState();
+          if (saved) applyRestoredState(saved);
+        } catch (e) {
+          /* First-time or offline state */
+        }
+      }
+
+      renderSpiralBoard();
+      renderDice(appState.lastRoll[0], appState.lastRoll[1], false);
+      renderPlayersStrip();
+      renderStoryCard();
+      renderCartoChart();
+      initVectorMaps();
+      renderGazetteer();
+
+      if (window.notebookAppApi && typeof window.notebookAppApi.notifyAppReady === `function`) {
+        window.notebookAppApi.notifyAppReady();
+      }
+    }
+
+    document.addEventListener(`DOMContentLoaded`, initApp);
+  </script>
+</body>
+</html>

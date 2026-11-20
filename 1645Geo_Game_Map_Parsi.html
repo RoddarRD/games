@@ -1,0 +1,2730 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="dashboard">
+  <meta name="design-style" content="broadsheet">
+  <title>بازی جهان (Le Jeu du Monde) — نقشهٔ ۱۶۴۵ پیر دو وال</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,600;0,700;0,800;1,400&family=Noto+Naskh+Arabic:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+
+      /* Page and surfaces (Broadsheet) */
+      --background: #f7f3eb;
+      --surface-container-low: #efe8da;
+      --surface-container: #e6ddcc;
+      --surface-container-high: #ddd2be;
+
+      /* Ink */
+      --on-surface: #1a1817;
+      --on-surface-variant: #4d4845;
+
+      /* Rules */
+      --outline: #33302e;
+      --outline-variant: #cdc3b2;
+
+      /* Accents */
+      --primary: #990f3d;
+      --on-primary: #ffffff;
+      --primary-container: #f4dce2;
+      --on-primary-container: #6b0a2a;
+      --secondary: #0d7680;
+      --tertiary: #0f5499;
+      --error: #b3261e;
+      --on-error: #ffffff;
+
+      /* Data series */
+      --data-1: #990f3d;
+      --data-2: #0d7680;
+      --data-3: #0f5499;
+      --data-4: #9a6312;
+      --data-context: #bfb5a4;
+
+      /* Semantic */
+      --positive: #0d7680;
+      --warning: #9a6312;
+      --focus: #990f3d;
+      --overlay-scrim: rgba(26, 24, 23, 0.58);
+      --map-ring-1: #9a6312;
+      --map-ring-2: #0d7680;
+      --map-ring-3: #0f5499;
+      --map-ring-4: #4d4845;
+      --map-ring-5: #990f3d;
+
+      /* Fonts: Persian editorial + Broadsheet Latin pairings */
+      --font-headline: 'Noto Naskh Arabic', 'Bitter', serif;
+      --font-body: 'Noto Naskh Arabic', 'Source Serif 4', serif;
+      --font-label: 'Vazirmatn', 'Source Sans 3', sans-serif;
+      --font-latin-serif: 'Bitter', 'Source Serif 4', serif;
+      --font-latin-sans: 'Source Sans 3', sans-serif;
+
+      /* Shape (Broadsheet square) */
+      --rounded: 0;
+      --rounded-lg: 0;
+      --rounded-full: 0;
+
+      /* Style effects */
+      --rule-masthead: 3px double var(--on-surface);
+      --rule-ink: 1px solid var(--on-surface);
+      --rule-section: 2px solid var(--outline);
+      --rule-column: 1px solid var(--outline-variant);
+
+      /* Type scale (Dashboard / Data Explorer) */
+      --display-size: clamp(1.85rem, 1.35rem + 1.5vw, 2.5rem);
+      --headline-size: clamp(1.25rem, 1.08rem + 0.55vw, 1.55rem);
+      --subhead-size: clamp(1.05rem, 0.98rem + 0.25vw, 1.2rem);
+      --body-size: clamp(0.95rem, 0.92rem + 0.15vw, 1.025rem);
+      --label-size: 0.78rem;
+
+      /* Spacing scale (4pt base) */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.5rem;
+      --space-2xl: 4rem;
+
+      /* Motion */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-micro: 120ms;
+      --dur-short: 220ms;
+      --dur-long: 420ms;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { overflow-x: clip; margin: 0; padding: 0; }
+    header { position: static !important; }
+
+    body {
+      background-color: var(--background);
+      color: var(--on-surface);
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: inherit;
+    }
+
+    .page-grid {
+      display: grid;
+      gap: var(--space-xl);
+      padding: var(--space-lg);
+      max-width: 1280px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    .page-grid * { min-width: 0; }
+
+    /* Focus visibility */
+    :focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    /* Typography helpers */
+    h1, h2, h3, h4 {
+      font-family: var(--font-headline);
+      color: var(--on-surface);
+      margin: 0;
+      letter-spacing: 0;
+    }
+    h1 {
+      font-size: var(--display-size);
+      font-weight: 700;
+      line-height: 1.25;
+    }
+    h2 {
+      font-size: var(--headline-size);
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    h3 {
+      font-size: var(--subhead-size);
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    p {
+      margin: 0;
+      max-width: 68ch;
+    }
+
+    .label-voice {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 700;
+      color: var(--on-surface-variant);
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .latin-meta {
+      font-family: var(--font-latin-sans);
+      font-size: var(--label-size);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--on-surface-variant);
+    }
+
+    .latin-title {
+      font-family: var(--font-latin-serif);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .tabular-nums {
+      font-variant-numeric: lining-nums tabular-nums;
+      font-family: var(--font-label);
+    }
+
+    /* Masthead */
+    .masthead {
+      border-bottom: var(--rule-ink);
+      padding-bottom: var(--space-lg);
+    }
+    .masthead-line {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+      border-bottom: var(--rule-masthead);
+      padding-bottom: var(--space-sm);
+      margin-bottom: var(--space-md);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 700;
+      color: var(--on-surface-variant);
+    }
+    .masthead-title-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: var(--space-md);
+    }
+    .masthead-lede {
+      margin-top: var(--space-sm);
+      font-size: 1.08rem;
+      line-height: 1.65;
+      color: var(--on-surface-variant);
+      max-width: 74ch;
+    }
+    .masthead-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      align-items: center;
+    }
+
+    /* Section openers */
+    .section-open {
+      border-top: var(--rule-section);
+      padding-top: var(--space-sm);
+    }
+    .section-header-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+    .section-kicker {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: var(--label-size);
+      color: var(--primary);
+      margin-bottom: var(--space-xs);
+    }
+
+    /* Bare teal tags (only on --background!) */
+    .tag {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: var(--label-size);
+      color: var(--secondary);
+      background: transparent;
+      padding: 0;
+      display: inline-block;
+    }
+    .tag-claret {
+      color: var(--primary);
+    }
+
+    /* Hairline KPI Columns */
+    .kpi-columns {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+      border-bottom: var(--rule-column);
+      padding-bottom: var(--space-md);
+    }
+    .kpi-col {
+      border-right: var(--rule-column);
+      padding: var(--space-xs) var(--space-lg);
+      background: transparent;
+    }
+    .kpi-col:first-child {
+      border-right: 0;
+      padding-right: 0;
+    }
+    .kpi-col:last-child {
+      padding-left: 0;
+    }
+    .kpi-value {
+      font-family: var(--font-label);
+      font-weight: 800;
+      font-size: clamp(1.35rem, 1.1rem + 0.8vw, 1.85rem);
+      line-height: 1.2;
+      color: var(--on-surface);
+      margin-top: var(--space-xs);
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    .kpi-sub {
+      margin-top: var(--space-xs);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 600;
+      color: var(--secondary);
+    }
+    .kpi-sub.ink {
+      color: var(--on-surface-variant);
+    }
+
+    /* Buttons (square Broadsheet) */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      min-height: 44px;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--rounded);
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: 1px solid var(--outline);
+      transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out);
+      text-decoration: none;
+    }
+    .btn:disabled {
+      opacity: 0.52;
+      cursor: not-allowed;
+    }
+    .btn-primary {
+      background-color: var(--primary);
+      color: var(--on-primary);
+      border-color: var(--primary);
+    }
+    .btn-primary:hover:not(:disabled) {
+      background-color: var(--on-primary-container);
+      border-color: var(--on-primary-container);
+    }
+    .btn-secondary {
+      background-color: var(--surface-container-low);
+      color: var(--on-surface);
+      border-color: var(--outline);
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background-color: var(--surface-container-high);
+    }
+    .btn-ghost {
+      background-color: transparent;
+      color: var(--primary);
+      border-color: var(--outline-variant);
+    }
+    .btn-ghost:hover:not(:disabled) {
+      background-color: var(--surface-container-low);
+      border-color: var(--outline);
+    }
+
+    /* Inputs & Controls */
+    .control-field {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+    .control-label {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 700;
+      color: var(--on-surface-variant);
+    }
+    .input-box, .select-box {
+      min-height: 44px;
+      padding: var(--space-sm) var(--space-md);
+      background-color: var(--background);
+      color: var(--on-surface);
+      border: 1px solid var(--outline);
+      border-radius: var(--rounded);
+      font-family: var(--font-label);
+      font-size: 0.9rem;
+    }
+    .select-box {
+      padding-left: var(--space-xl);
+    }
+    .input-box:focus, .select-box:focus {
+      border-color: var(--primary);
+    }
+
+    /* Main Interactive Game Workspace */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+      gap: var(--space-lg);
+      align-items: start;
+    }
+
+    /* Game Controls Bar */
+    .game-console {
+      background-color: var(--surface-container-low);
+      border-top: var(--rule-section);
+      border-bottom: var(--rule-ink);
+      padding: var(--space-md);
+      margin-bottom: var(--space-md);
+      display: grid;
+      gap: var(--space-md);
+    }
+    .console-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      align-items: end;
+      justify-content: space-between;
+    }
+    .console-settings {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      align-items: end;
+    }
+    .dice-stage {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-md);
+      padding-top: var(--space-sm);
+      border-top: var(--rule-column);
+    }
+    .dice-pair {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .die-svg {
+      width: 46px;
+      height: 46px;
+      display: block;
+      transition: transform var(--dur-short) var(--ease-out);
+    }
+    .die-svg.rolling {
+      transform: rotate(-14deg) scale(1.08);
+    }
+    .turn-banner {
+      flex: 1 1 220px;
+      font-family: var(--font-label);
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: var(--on-surface);
+    }
+    .turn-banner strong {
+      color: var(--primary);
+    }
+
+    .checkbox-row {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      min-height: 44px;
+      font-family: var(--font-label);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--on-surface);
+      cursor: pointer;
+    }
+    .checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    /* Spiral Map Frame */
+    .map-frame {
+      border: 2px solid var(--on-surface);
+      background-color: var(--background);
+      padding: var(--space-sm);
+      position: relative;
+    }
+    .map-svg-wrap {
+      width: 100%;
+      min-height: 420px;
+    }
+    .board-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      user-select: none;
+    }
+    .board-node {
+      cursor: pointer;
+      transition: transform var(--dur-micro) var(--ease-out);
+    }
+    .board-node:focus-visible {
+      outline: 2px solid var(--primary);
+    }
+    .node-circle {
+      transition: stroke-width var(--dur-micro) var(--ease-out), fill var(--dur-micro) var(--ease-out);
+    }
+    .board-node:hover .node-circle {
+      stroke-width: 2.8px;
+    }
+    .board-node.is-selected .node-circle {
+      stroke: var(--primary);
+      stroke-width: 3.4px;
+    }
+    .board-node.is-discovered .node-ring-halo {
+      stroke: var(--secondary);
+      stroke-dasharray: 3 2;
+    }
+
+    .map-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      padding: var(--space-sm) var(--space-xs) 0;
+      border-top: var(--rule-column);
+      margin-top: var(--space-sm);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+    .legend-swatch {
+      width: 12px;
+      height: 12px;
+      border: 1px solid var(--on-surface);
+      display: inline-block;
+    }
+    .swatch-myth { background-color: var(--primary-container); border-color: var(--primary); }
+    .swatch-wind { background-color: var(--secondary); }
+    .swatch-inn { background-color: var(--surface-container-high); border-style: dashed; }
+    .swatch-hazard { background-color: var(--error); }
+    .swatch-paris { background-color: var(--primary); }
+
+    /* Player Turn Status Strip */
+    .players-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+    .player-badge-card {
+      border: var(--rule-column);
+      border-top: 2px solid var(--outline);
+      padding: var(--space-sm) var(--space-md);
+      background-color: var(--background);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .player-badge-card.is-active {
+      border-top-color: var(--primary);
+      background-color: var(--primary-container);
+    }
+    .player-dot {
+      width: 14px;
+      height: 14px;
+      display: inline-block;
+      border: 1px solid var(--on-surface);
+      vertical-align: middle;
+      margin-left: var(--space-xs);
+    }
+    .dot-p1 { background-color: var(--primary); }
+    .dot-p2 { background-color: var(--tertiary); }
+
+    /* Storytelling Inspector (Right / Left-in-RTL column) */
+    .inspector-col {
+      border-right: var(--rule-column);
+      padding-right: var(--space-lg);
+      display: grid;
+      gap: var(--space-lg);
+    }
+    .inspector-card {
+      border-top: var(--rule-section);
+      padding-top: var(--space-md);
+    }
+    .inspector-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-sm);
+    }
+    .space-num-box {
+      min-width: 56px;
+      height: 56px;
+      border: 2px solid var(--on-surface);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-label);
+      font-weight: 800;
+      font-size: 1.25rem;
+      line-height: 1.1;
+      background-color: var(--background);
+      color: var(--on-surface);
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    .space-num-box.is-myth {
+      border-color: var(--primary);
+      background-color: var(--primary-container);
+      color: var(--on-primary-container);
+    }
+    .inspector-meta-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      align-items: center;
+      margin-bottom: var(--space-sm);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+    }
+    .rule-callout {
+      background-color: var(--surface-container-low);
+      border-right: 3px solid var(--primary);
+      padding: var(--space-sm) var(--space-md);
+      margin-block: var(--space-md);
+      font-family: var(--font-label);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .fact-compare {
+      border-top: var(--rule-column);
+      border-bottom: var(--rule-column);
+      padding-block: var(--space-sm);
+      margin-top: var(--space-md);
+      display: grid;
+      gap: var(--space-xs);
+    }
+    .inspector-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      margin-top: var(--space-md);
+    }
+
+    /* Travel Log */
+    .log-panel {
+      border-top: var(--rule-ink);
+      padding-top: var(--space-md);
+    }
+    .log-list {
+      list-style: none;
+      margin: var(--space-sm) 0 0;
+      padding: 0;
+      max-height: 210px;
+      overflow-y: auto;
+      border-top: var(--rule-column);
+    }
+    .log-list li {
+      padding: var(--space-xs) 0;
+      border-bottom: var(--rule-column);
+      font-family: var(--font-label);
+      font-size: 0.84rem;
+      line-height: 1.5;
+      color: var(--on-surface-variant);
+    }
+    .log-list li:first-child {
+      color: var(--on-surface);
+      font-weight: 600;
+    }
+
+    /* Rules Strip */
+    .rules-columns {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+      border-top: var(--rule-ink);
+      border-bottom: var(--rule-ink);
+      padding-block: var(--space-md);
+    }
+    .rule-item {
+      border-right: var(--rule-column);
+      padding: var(--space-xs) var(--space-md);
+    }
+    .rule-item:first-child {
+      border-right: 0;
+      padding-right: 0;
+    }
+    .rule-item:last-child {
+      padding-left: 0;
+    }
+    .rule-item h3 {
+      margin-bottom: var(--space-xs);
+      font-size: 1rem;
+    }
+    .rule-item p {
+      font-size: 0.9rem;
+      color: var(--on-surface-variant);
+      line-height: 1.55;
+    }
+
+    /* Charts Section */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-xl);
+      align-items: start;
+    }
+    .chart-panel {
+      border-top: var(--rule-ink);
+      padding-top: var(--space-md);
+    }
+    .chart-container {
+      position: relative;
+      min-height: 300px;
+      height: 300px;
+      width: 100%;
+      margin-top: var(--space-md);
+    }
+    .chart-caption {
+      margin-top: var(--space-sm);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+    }
+    .sim-stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      margin-top: var(--space-sm);
+      font-family: var(--font-label);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--on-surface);
+    }
+
+    /* California Island & Historical Context Section */
+    .history-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: var(--space-xl);
+      align-items: start;
+    }
+    .california-compare {
+      border: 1px solid var(--outline);
+      background-color: var(--surface-container-low);
+      padding: var(--space-md);
+    }
+    .cal-svg-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-md);
+      margin-top: var(--space-md);
+    }
+    .cal-svg-box {
+      border: var(--rule-column);
+      background-color: var(--background);
+      padding: var(--space-sm);
+    }
+    .cal-svg-box svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .context-columns {
+      display: grid;
+      gap: var(--space-md);
+    }
+    .context-article {
+      border-top: var(--rule-column);
+      padding-top: var(--space-sm);
+    }
+    .context-article:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+    .context-article h3 {
+      margin-bottom: var(--space-xs);
+    }
+    .context-article p {
+      font-size: 0.94rem;
+      color: var(--on-surface-variant);
+      line-height: 1.65;
+    }
+
+    /* Searchable Gazetteer Table */
+    .filter-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      align-items: end;
+      margin-bottom: var(--space-md);
+    }
+    .table-scroll {
+      overflow-x: auto;
+      border-top: var(--rule-section);
+      border-bottom: var(--rule-section);
+    }
+    table.gazetteer-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    .gazetteer-table thead th {
+      text-align: right;
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 700;
+      color: var(--on-surface);
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: var(--rule-ink);
+      background-color: var(--background);
+      white-space: nowrap;
+    }
+    .gazetteer-table tbody td {
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: var(--rule-column);
+      vertical-align: top;
+    }
+    .gazetteer-table tbody tr {
+      cursor: pointer;
+      transition: background-color var(--dur-micro) var(--ease-out);
+    }
+    .gazetteer-table tbody tr:hover {
+      background-color: var(--surface-container-low);
+    }
+    .gazetteer-table tbody tr.is-row-selected {
+      background-color: var(--primary-container);
+    }
+
+    /* Storytelling Modal Popup */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: var(--overlay-scrim);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-md);
+      z-index: 1000;
+    }
+    .modal-backdrop.is-open {
+      display: flex;
+    }
+    .modal-dialog {
+      background-color: var(--background);
+      border: 2px solid var(--on-surface);
+      max-width: 680px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: var(--space-lg);
+      display: grid;
+      gap: var(--space-md);
+    }
+    .modal-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-md);
+      border-bottom: var(--rule-masthead);
+      padding-bottom: var(--space-sm);
+    }
+    .modal-footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+      border-top: var(--rule-ink);
+      padding-top: var(--space-md);
+    }
+
+    /* Source Footer */
+    .source-footer {
+      border-top: var(--rule-section);
+      padding-top: var(--space-md);
+      padding-bottom: var(--space-xl);
+      font-family: var(--font-label);
+      font-size: 0.84rem;
+      color: var(--on-surface-variant);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: var(--space-md);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+      .workspace-grid {
+        grid-template-columns: 1fr;
+      }
+      .inspector-col {
+        border-right: 0;
+        padding-right: 0;
+        border-top: var(--rule-section);
+        padding-top: var(--space-lg);
+      }
+      .charts-grid, .history-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page-grid {
+        padding: var(--space-md);
+        gap: var(--space-lg);
+      }
+      .kpi-columns, .rules-columns, .cal-svg-grid {
+        grid-template-columns: 1fr;
+      }
+      .kpi-col, .rule-item {
+        border-right: 0;
+        border-top: var(--rule-column);
+        padding: var(--space-sm) 0;
+      }
+      .kpi-col:first-child, .rule-item:first-child {
+        border-top: 0;
+      }
+      .map-svg-wrap {
+        min-height: 280px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-grid">
+    <!-- MASTHEAD -->
+    <header class="masthead">
+      <div class="masthead-line">
+        <span>پاریس، <bdi dir="ltr">1645</bdi> میلادی • چاپخانهٔ پیر دو وال در خیابان سن‌ژاک «نشان امید»</span>
+        <span class="latin-meta"><bdi dir="ltr">LE JEU DU MONDE • BNF &amp; RUMSEY 6728.000</bdi></span>
+      </div>
+      <div class="masthead-title-row">
+        <div>
+          <h1>بازی جهان (<bdi dir="ltr">Le Jeu du Monde</bdi>) — اطلس مارپیچی پیر دو وال</h1>
+          <p class="masthead-lede">
+            بازآفرینی تعاملی یکی از کهن‌ترین بازی‌های جغرافیایی جهان: سفری ۶۳ خانه‌ای از کرانه‌های دوردست اقیانوس‌ها و سرزمین‌های شگفت‌انگیز سدهٔ هفدهم به سوی مرکز نقشه، پاریس و پادشاهی فرانسه.
+          </p>
+        </div>
+        <div class="masthead-actions">
+          <button type="button" class="btn btn-secondary" onclick="exportJourneyCSV()">خروجی گزارش سفر (CSV)</button>
+          <button type="button" class="btn btn-ghost" onclick="openSpaceModal(state.selectedSpaceId)">گشودن پنجرهٔ روایت خانهٔ فعلی</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- TOP KPI STRIP -->
+    <section aria-label="وضعیت لحظه‌ای سفر">
+      <div class="kpi-columns">
+        <div class="kpi-col">
+          <div class="label-voice">موقعیت بازیکن فعال</div>
+          <div class="kpi-value" id="kpi-position">خانه ۰ از ۶۳</div>
+          <div class="kpi-sub" id="kpi-region">آمادهٔ عزیمت از اقیانوس بیرونی</div>
+        </div>
+        <div class="kpi-col">
+          <div class="label-voice">پرتاب‌های تاس و نوبت</div>
+          <div class="kpi-value" id="kpi-rolls">۰ پرتاب</div>
+          <div class="kpi-sub ink" id="kpi-mode-label">قانون دو تاس کلاسیک ۱۶۴۵</div>
+        </div>
+        <div class="kpi-col">
+          <div class="label-voice">خطاهای نقشه‌نگاری کشف‌شده</div>
+          <div class="kpi-value" id="kpi-myths">۰ از ۸</div>
+          <div class="kpi-sub" id="kpi-myths-note">شامل جزیرهٔ کالیفرنیا در خانه ۵</div>
+        </div>
+        <div class="kpi-col">
+          <div class="label-voice">فاصله تا مرکز (پاریس)</div>
+          <div class="kpi-value" id="kpi-remaining">۶۳ خانه</div>
+          <div class="kpi-sub ink" id="kpi-progress-pct">۰٪ مسیر پیموده شده</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAIN GAME BOARD & STORYTELLING INSPECTOR -->
+    <section class="section-open" aria-label="تخته بازی مارپیچی و راوی داستان">
+      <div class="section-header-row">
+        <div>
+          <div class="section-kicker">بخش نخست • تختهٔ بازی ۶۳ دایره‌ای و راوی هر ایستگاه</div>
+          <h2>مسیر مارپیچی از اقیانوس بیرونی تا قلب فرانسه</h2>
+        </div>
+        <span class="tag">روی هر دایره کلیک کنید یا تاس بریزید</span>
+      </div>
+
+      <div class="workspace-grid">
+        <!-- Board Column -->
+        <div>
+          <!-- Game Console -->
+          <div class="game-console">
+            <div class="console-row">
+              <div class="console-settings">
+                <div class="control-field">
+                  <label class="control-label" for="select-player-mode">حالت بازی</label>
+                  <select id="select-player-mode" class="select-box" onchange="changePlayerMode(this.value)">
+                    <option value="solo">تک‌نفره (کاوشگر)</option>
+                    <option value="ai">رقابت با ناوبر ۱۶۴۵ (خودکار)</option>
+                    <option value="two">دو نفره (نوبتی روی یک صفحه)</option>
+                  </select>
+                </div>
+                <div class="control-field">
+                  <label class="control-label" for="select-dice-mode">شیوهٔ پرتاب تاس</label>
+                  <select id="select-dice-mode" class="select-box" onchange="changeDiceMode(this.value)">
+                    <option value="2d6">۲ تاس (قانون کلاسیک ۱۶۴۵)</option>
+                    <option value="1d6">۱ تاس (حرکت آهسته‌تر برای کاوش)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="masthead-actions">
+                <button type="button" class="btn btn-primary" id="btn-roll-dice" onclick="handleRollClick()">پرتاب تاس و حرکت</button>
+                <button type="button" class="btn btn-secondary" id="btn-reset-game" onclick="resetGame(this)">شروع دوباره</button>
+              </div>
+            </div>
+
+            <div class="dice-stage">
+              <div class="dice-pair" id="dice-pair" aria-live="polite">
+                <svg class="die-svg" id="die-1-svg" viewBox="0 0 48 48" aria-hidden="true"></svg>
+                <svg class="die-svg" id="die-2-svg" viewBox="0 0 48 48" aria-hidden="true"></svg>
+              </div>
+              <div class="turn-banner" id="turn-banner" aria-live="polite">
+                برای آغاز سفر جغرافیایی از خانهٔ ۱ (نیوفاندلند) به سوی پاریس (۶۳)، دکمهٔ «پرتاب تاس و حرکت» را بزنید.
+              </div>
+              <label class="checkbox-row">
+                <input type="checkbox" id="chk-auto-popup" checked onchange="toggleAutoPopup(this.checked)">
+                <span>نمایش پنجرهٔ روایت هنگام فرود</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Players Status Strip -->
+          <div class="players-strip" id="players-strip"></div>
+
+          <!-- Interactive 63-Circle SVG Map -->
+          <div class="map-frame">
+            <div class="map-svg-wrap">
+              <svg id="board-svg" class="board-svg" viewBox="0 0 920 720" role="img" aria-label="تختهٔ بازی مارپیچی ۶۳ خانه‌ای لو ژو دو موند اثر پیر دو وال ۱۶۴۵"></svg>
+            </div>
+            <div class="map-legend">
+              <span class="legend-item"><span class="legend-swatch swatch-myth"></span>افسانه و خطای نقشه‌نگاری</span>
+              <span class="legend-item"><span class="legend-swatch swatch-wind"></span>بادبان موافق (جهش به جلو)</span>
+              <span class="legend-item"><span class="legend-swatch swatch-inn"></span>توقف‌گاه (۱ نوبت استراحت)</span>
+              <span class="legend-item"><span class="legend-swatch swatch-hazard"></span>طوفان دریایی (بازگشت به عقب)</span>
+              <span class="legend-item"><span class="legend-swatch swatch-paris"></span>خانه ۶۳: پاریس (مرکز نقشه)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Storytelling Inspector & Travel Log Column -->
+        <aside class="inspector-col" aria-label="روایت خانه و دفتر وقایع">
+          <div class="inspector-card" id="inspector-card">
+            <div class="inspector-header">
+              <div>
+                <span class="tag" id="insp-tag">ایستگاه انتخاب‌شده</span>
+                <h3 id="insp-title" style="margin-top: var(--space-xs);">خانه ۵: جزیرهٔ کالیفرنیا</h3>
+                <div class="latin-meta" id="insp-french" style="margin-top: var(--space-xs);"><bdi dir="ltr">CALIFORNIE (ÎLE)</bdi></div>
+              </div>
+              <div class="space-num-box" id="insp-num">۵</div>
+            </div>
+
+            <div class="inspector-meta-line">
+              <span id="insp-region">حلقه ۱: جهان نو و اقیانوس بیرونی</span>
+              <span>•</span>
+              <span id="insp-type-label">افسانهٔ نقشه‌نگاری</span>
+            </div>
+
+            <div class="rule-callout" id="insp-rule">
+              قانون بازی: کشف خطای معروف نقشه‌نگاری ۱۶۴۵ — کالیفرنیا در این نقشه به صورت جزیره ترسیم شده است.
+            </div>
+
+            <p id="insp-story"></p>
+
+            <div class="fact-compare">
+              <div class="label-voice">تصحیح علمی در مقایسه با نقشهٔ امروزی</div>
+              <p id="insp-modern" style="font-size: 0.9rem; color: var(--on-surface-variant);"></p>
+            </div>
+
+            <div class="inspector-nav">
+              <button type="button" class="btn btn-secondary" onclick="stepSelectedSpace(-1)">خانهٔ قبلی</button>
+              <button type="button" class="btn btn-secondary" onclick="stepSelectedSpace(1)">خانهٔ بعدی</button>
+              <button type="button" class="btn btn-primary" onclick="openSpaceModal(state.selectedSpaceId)">گشودن پنجرهٔ روایت</button>
+            </div>
+          </div>
+
+          <div class="log-panel">
+            <div class="section-kicker">گزارش ناوبری</div>
+            <h3>دفترچهٔ وقایع سفر</h3>
+            <ul class="log-list" id="travel-log-list" aria-live="polite"></ul>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- GAME MOVEMENT RULES -->
+    <section class="section-open" aria-label="قوانین حرکت بازی">
+      <div class="section-header-row">
+        <div>
+          <div class="section-kicker">بخش دوم • آیین‌نامهٔ بازی جغرافیایی سدهٔ هفدهم</div>
+          <h2>قوانین حرکت از کرانه‌های جهان به سوی پاریس</h2>
+        </div>
+        <span class="tag">الهام‌گرفته از قواعد بازی ۶۳ خانه‌ای ۱۶۴۵</span>
+      </div>
+      <div class="rules-columns">
+        <div class="rule-item">
+          <h3>۱. حرکت مارپیچی رو به مرکز</h3>
+          <p>بازیکنان از بیرون تخته (خانهٔ صفر) آغاز می‌کنند و با ریختن تاس از حلقهٔ بیرونی (آمریکا و اقیانوس‌ها) از راه آفریقا، آسیا و اروپا به سمت مرکز (پاریس، خانهٔ ۶۳) پیش می‌روند.</p>
+        </div>
+        <div class="rule-item">
+          <h3>۲. بادبان موافق و طوفان دریایی</h3>
+          <p>خانه‌های بادبان موافق (مانند جزایر سلیمان ۶، دماغهٔ امید نیک ۲۰ یا ونیز ۴۲) شما را چند خانه به جلو می‌پرند؛ در مقابل، طوفان‌های ماژلان (۱۱) و جبل‌الطارق (۴۶) سفر را به عقب می‌رانند.</p>
+        </div>
+        <div class="rule-item">
+          <h3>۳. توقف در بندرها و کاروان‌سراها</h3>
+          <p>بنادر مهم تجاری همچون جزایر قناری (۱۶)، شام و آناتولی (۳۸) و آمستردام (۵۲) استراحت‌گاه‌های اجباری هستند که بازیکن برای تدارک کشتی یا کاروان یک نوبت از حرکت بازمی‌ماند.</p>
+        </div>
+        <div class="rule-item">
+          <h3>۴. ورود دقیق به پاریس (۶۳)</h3>
+          <p>برای فتح خانهٔ ۶۳ (فرانسه / پاریس) باید شمارهٔ تاس دقیقاً با خانه‌های باقی‌مانده برابر باشد؛ عدد اضافی بازیکن را به اندازهٔ مازاد از پاریس به سمت بیرون برمی‌گرداند.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- DATA VISUALIZATIONS -->
+    <section class="section-open" aria-label="تحلیل داده‌ها و شبیه‌ساز احتمال">
+      <div class="section-header-row">
+        <div>
+          <div class="section-kicker">بخش سوم • داده‌کاوی اطلس ۱۶۴۵ و شبیه‌ساز ریاضی</div>
+          <h2>ساختار پنج حلقهٔ جهان و توزیع احتمال طول سفر</h2>
+        </div>
+        <span class="tag">کلیک روی ستون نمودار، جدول زیر را فیلتر می‌کند</span>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-panel">
+          <div class="section-kicker">نمودار ۱ • ترکیب جغرافیایی ۶۳ دایره</div>
+          <h3>توزیع خانه‌های عادی، افسانه‌ها، موانع و جهش‌ها در هر حلقه</h3>
+          <div class="chart-container">
+            <canvas id="chart-regions" aria-label="نمودار توزیع ۶۳ خانه در پنج حلقه جغرافیایی"></canvas>
+          </div>
+          <p class="chart-caption">
+            حلقه‌های بیرونی (جهان نو و آسیا) بیشترین تراکم خطاهای نقشه‌نگاری و طوفان‌های دریایی را دارند، در حالی که حلقهٔ پنجم (فرانسه) هموارترین مسیر تا مرکز است.
+          </p>
+        </div>
+
+        <div class="chart-panel">
+          <div class="section-kicker">نمودار ۲ • شبیه‌سازی مونت‌کارلو (<bdi dir="ltr">1,000</bdi> بازی)</div>
+          <h3>چند پرتاب تاس تا رسیدن به پاریس لازم است؟</h3>
+          <div class="chart-container">
+            <canvas id="chart-simulation" aria-label="نمودار توزیع تعداد نوبت‌های لازم برای رسیدن به خانه ۶۳"></canvas>
+          </div>
+          <div class="sim-stats-row" id="sim-stats-row">
+            <span>میانگین با ۲ تاس: —</span>
+            <span>میانگین با ۱ تاس: —</span>
+            <button type="button" class="btn btn-ghost" style="min-height: 36px; padding: var(--space-xs) var(--space-sm);" onclick="runMonteCarloSimulation()">اجرای دوبارهٔ ۱۰۰۰ شبیه‌سازی</button>
+          </div>
+          <p class="chart-caption">
+            پرتاب ۲ تاس میانگین سفر را به شدت کاهش می‌دهد، اما قانون بازگشت از خانهٔ ۶۳ در صورت عدد اضافی، دمِ توزیع را کشیده‌تر می‌کند.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- HISTORICAL CONTEXT & CALIFORNIA AS AN ISLAND -->
+    <section class="section-open" aria-label="زمینه تاریخی و خطاهای نقشه‌نگاری">
+      <div class="section-header-row">
+        <div>
+          <div class="section-kicker">بخش چهارم • تاریخ نقشه‌نگاری سدهٔ هفدهم</div>
+          <h2>پیر دو وال، فرانسه در مرکز جهان و افسانهٔ «جزیرهٔ کالیفرنیا»</h2>
+        </div>
+        <span class="tag">مطالعهٔ موردی خانهٔ ۵</span>
+      </div>
+
+      <div class="history-grid">
+        <div class="california-compare">
+          <div class="section-kicker">مقایسهٔ تصویری خانهٔ ۵</div>
+          <h3>چرا کالیفرنیا در نقشهٔ <bdi dir="ltr">1645</bdi> یک جزیره ترسیم شده است؟</h3>
+          <p style="margin-top: var(--space-xs); font-size: 0.94rem; color: var(--on-surface-variant);">
+            در خانهٔ پنجم بازی دو وال (<bdi dir="ltr">Californie</bdi>)، کالیفرنیا به صورت یک جزیرهٔ کشیده و جدا از قارهٔ آمریکای شمالی نشان داده شده است. این خطای مشهور سدهٔ هفدهم از گزارش‌های نادرست دریانوردان اسپانیایی دربارهٔ خلیج کالیفرنیا (دریای کورتس) سرچشمه گرفت که گمان می‌کردند آبراهی کامل تا اقیانوس آرام ادامه دارد. تا دههٔ ۱۷۴۰ میلادی، بسیاری از نقشه‌نگاران برجستهٔ پاریس و آمستردام این اشتباه را تکرار کردند.
+          </p>
+          <div class="cal-svg-grid">
+            <div class="cal-svg-box">
+              <div class="label-voice" style="margin-bottom: var(--space-xs); color: var(--primary);">تصور پیر دو وال (۱۶۴۵ — خانه ۵)</div>
+              <svg viewBox="0 0 240 160" role="img" aria-label="طرح شماتیک کالیفرنیا به صورت جزیره در نقشه ۱۶۴۵">
+                <rect x="0" y="0" width="240" height="160" fill="var(--surface-container-low)"/>
+                <path d="M 105 12 L 230 12 L 230 150 L 160 150 Q 130 110 118 75 Q 100 45 105 12 Z" fill="var(--surface-container)" stroke="var(--outline)" stroke-width="1.5"/>
+                <path d="M 48 28 Q 68 20 82 42 Q 92 78 78 122 Q 66 138 56 124 Q 42 90 48 28 Z" fill="var(--primary-container)" stroke="var(--primary)" stroke-width="2"/>
+                <line x1="92" y1="20" x2="108" y2="128" stroke="var(--secondary)" stroke-width="1.5" stroke-dasharray="4 3"/>
+                <text x="66" y="80" text-anchor="middle" font-size="11" font-family="Vazirmatn, sans-serif" font-weight="700" fill="var(--primary)">جزیره کالیفرنیا</text>
+                <text x="165" y="75" text-anchor="middle" font-size="10" font-family="Vazirmatn, sans-serif" fill="var(--on-surface-variant)">سرزمین اصلی</text>
+                <text x="165" y="90" text-anchor="middle" font-size="9" font-family="Vazirmatn, sans-serif" fill="var(--on-surface-variant)">(اسپانیای نو)</text>
+                <text x="28" y="148" font-size="9" font-family="Vazirmatn, sans-serif" fill="var(--secondary)">دریای کالیفرنیا (تنگهٔ فرضی)</text>
+              </svg>
+            </div>
+            <div class="cal-svg-box">
+              <div class="label-voice" style="margin-bottom: var(--space-xs); color: var(--secondary);">واقعیت جغرافیایی (شبه‌جزیره)</div>
+              <svg viewBox="0 0 240 160" role="img" aria-label="طرح شماتیک واقعی شبه‌جزیره باخا کالیفرنیا متصل به قاره">
+                <rect x="0" y="0" width="240" height="160" fill="var(--surface-container-low)"/>
+                <path d="M 62 12 L 230 12 L 230 150 L 155 150 Q 128 115 112 72 L 96 42 L 124 128 L 114 134 L 74 52 L 58 26 Z" fill="var(--surface-container)" stroke="var(--secondary)" stroke-width="1.8"/>
+                <text x="160" y="65" text-anchor="middle" font-size="10" font-family="Vazirmatn, sans-serif" font-weight="700" fill="var(--on-surface)">اتصال خشکی</text>
+                <text x="82" y="102" text-anchor="middle" font-size="10" font-family="Vazirmatn, sans-serif" font-weight="700" fill="var(--secondary)">شبه‌جزیره باخا</text>
+                <text x="35" y="148" font-size="9" font-family="Vazirmatn, sans-serif" fill="var(--on-surface-variant)">خلیج بسته در شمال</text>
+              </svg>
+            </div>
+          </div>
+          <div style="margin-top: var(--space-md);">
+            <button type="button" class="btn btn-secondary" onclick="focusSpaceFromOutside(5)">مشاهدهٔ خانهٔ ۵ روی تختهٔ بازی</button>
+          </div>
+        </div>
+
+        <div class="context-columns">
+          <article class="context-article">
+            <h3>پیر دو وال (<bdi dir="ltr">Pierre Du Val, 1619–1683</bdi>)</h3>
+            <p>
+              پیر دو وال، نقشه‌نگار برجستهٔ اهل آبهویل و خواهرزادهٔ نیکولا سانسون (پدر نقشه‌نگاری فرانسه)، این نقشه-بازی را در سال <bdi dir="ltr">1645</bdi> در پاریس و در کارگاه خود در خیابان سن‌ژاک («نشان امید / <bdi dir="ltr">à l'Espérance</bdi>») با امتیاز سلطنتی منتشر کرد. او نخستین کسی بود که قالب بازی‌های مارپیچی را با جغرافیای آموزشی پیوند داد و بعدها بازی مشابهی نیز برای جغرافیای فرانسه ساخت.
+            </p>
+          </article>
+          <article class="context-article">
+            <h3>تقدیم به کنت دو ویوون و مرکزیت فرانسه</h3>
+            <p>
+              عنوان کامل اثر این بازی را به «آقای کنت دو ویوون، نخستین نجیب‌زادهٔ تالار شاهی» تقدیم کرده است و نشان خانوادگی اشرافی در مرکز تخته قرار دارد. قراردادن فرانسه و پاریس در دایرهٔ ۶۳ (قلب جهان) بازتابی مستقیم از جهان‌بینی اروپامحور و شکوه دربار فرانسه در سدهٔ هفدهم است که هدف هر سفر جهانی را بازگشت پیروزمندانه به پاریس می‌دانست.
+            </p>
+          </article>
+          <article class="context-article">
+            <h3>دو نقشهٔ گوشه‌ای و نسخه‌های نادر بازمانده</h3>
+            <p>
+              این نقشهٔ کاغذی به ابعاد ۵۱ در ۴۰ سانتی‌متر چاپ شده و در دو گوشهٔ بالایی آن دو نقشهٔ کوچک نیم‌کره‌ای (گوشه‌نگاشت) برای آموزش کلی زمین گنجانده شده است. از «بازی جهان» <bdi dir="ltr">1645</bdi> تنها دو نسخه در جهان شناخته شده است: یکی در مجموعهٔ نقشه‌های دیوید رامزی (شمارهٔ <bdi dir="ltr">6728.000</bdi>) و دیگری در کتابخانهٔ ملی فرانسه (<bdi dir="ltr">BnF, Hennin 3477</bdi>). قواعد آن نیز در اسناد تاریخی مجموعهٔ هارتلیب (<bdi dir="ltr">8A_06</bdi>) ثبت شده است.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- FULL 63-SPACE SEARCHABLE GAZETTEER -->
+    <section class="section-open" aria-label="فهرست کامل ۶۳ خانه">
+      <div class="section-header-row">
+        <div>
+          <div class="section-kicker">بخش پنجم • فرهنگ‌نامهٔ کامل تختهٔ ۱۶۴۵</div>
+          <h2>جست‌وجو و کاوش هر ۶۳ دایرهٔ بازی جهان</h2>
+        </div>
+        <span class="tag" id="gazetteer-count">نمایش ۶۳ از ۶۳ خانه</span>
+      </div>
+
+      <div class="filter-toolbar">
+        <div class="control-field" style="flex: 1 1 240px;">
+          <label class="control-label" for="search-spaces">جست‌وجوی نام فارسی، فرانسوی یا توضیح</label>
+          <input type="search" id="search-spaces" class="input-box" oninput="filterGazetteer()" placeholder="مثلاً: کالیفرنیا، ایران، پاریس، Californie">
+        </div>
+        <div class="control-field" style="flex: 0 1 220px;">
+          <label class="control-label" for="filter-region">فیلتر حلقهٔ جغرافیایی</label>
+          <select id="filter-region" class="select-box" onchange="filterGazetteer()">
+            <option value="all">همهٔ ۵ حلقهٔ جهان</option>
+            <option value="americas">حلقه ۱: جهان نو و اقیانوسیه (۱–۱۴)</option>
+            <option value="africa">حلقه ۲: آفریقا و اطلس (۱۵–۲۵)</option>
+            <option value="asia">حلقه ۳: آسیا و خاورمیانه (۲۶–۳۹)</option>
+            <option value="europe">حلقه ۴: اروپا و مدیترانه (۴۰–۵۴)</option>
+            <option value="france">حلقه ۵: فرانسه و پاریس (۵۵–۶۳)</option>
+          </select>
+        </div>
+        <div class="control-field" style="flex: 0 1 210px;">
+          <label class="control-label" for="filter-type">فیلتر گونهٔ خانه</label>
+          <select id="filter-type" class="select-box" onchange="filterGazetteer()">
+            <option value="all">همهٔ گونه‌های خانه</option>
+            <option value="myth">افسانه و خطای نقشه‌نگاری</option>
+            <option value="shortcut">بادبان موافق (جهش به جلو)</option>
+            <option value="inn">توقف‌گاه (استراحت ۱ نوبت)</option>
+            <option value="hazard">طوفان دریایی (بازگشت)</option>
+            <option value="normal">مسیر عادی جغرافیایی</option>
+            <option value="goal">مرکز نهایی (پاریس ۶۳)</option>
+          </select>
+        </div>
+        <button type="button" class="btn btn-secondary" onclick="resetGazetteerFilters()">پاک‌کردن فیلترها</button>
+      </div>
+
+      <div class="table-scroll">
+        <table class="gazetteer-table">
+          <thead>
+            <tr>
+              <th>شماره</th>
+              <th>نام فارسی و نام ۱۶۴۵ فرانسوی</th>
+              <th>حلقهٔ جغرافیایی</th>
+              <th>گونه و قانون بازی</th>
+              <th>نکتهٔ تاریخی و نقشه‌نگاری</th>
+              <th>عمل</th>
+            </tr>
+          </thead>
+          <tbody id="gazetteer-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="source-footer">
+      <div>
+        منبع اصلی داده‌ها: نقشهٔ چاپی «بازی جهان» (<bdi dir="ltr">Le Jeu du Monde</bdi>) اثر پیر دو وال (<bdi dir="ltr">1645</bdi>)، مجموعهٔ نقشه‌های دیوید رامزی (شمارهٔ <bdi dir="ltr">6728.000</bdi>)، نسخهٔ کتابخانهٔ ملی فرانسه (<bdi dir="ltr">Hennin 3477</bdi>) و قواعد بایگانی هارتلیب (<bdi dir="ltr">8A_06</bdi>).
+      </div>
+      <div>
+        تنظیم و بازآفرینی تعاملی به زبان فارسی
+      </div>
+    </footer>
+  </div>
+
+  <!-- STORYTELLING MODAL POPUP -->
+  <div class="modal-backdrop" id="story-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-dialog">
+      <div class="modal-top">
+        <div>
+          <span class="tag tag-claret" id="modal-kicker">ایستگاه بازی جهان</span>
+          <h2 id="modal-title" style="margin-top: var(--space-xs);">خانه ۵: جزیرهٔ کالیفرنیا</h2>
+          <div class="latin-meta" id="modal-french" style="margin-top: var(--space-xs);"><bdi dir="ltr">CALIFORNIE</bdi></div>
+        </div>
+        <button type="button" class="btn btn-secondary" onclick="closeSpaceModal()" aria-label="بستن پنجرهٔ روایت">بستن</button>
+      </div>
+
+      <div class="inspector-meta-line">
+        <span id="modal-region">حلقه ۱</span>
+        <span>•</span>
+        <span id="modal-type">افسانهٔ نقشه‌نگاری</span>
+      </div>
+
+      <div class="rule-callout" id="modal-rule"></div>
+
+      <p id="modal-story" style="line-height: 1.75;"></p>
+
+      <div class="fact-compare">
+        <div class="label-voice">تصحیح علمی و جایگاه در نقشه‌نگاری سدهٔ هفدهم</div>
+        <p id="modal-modern" style="font-size: 0.94rem; color: var(--on-surface-variant);"></p>
+      </div>
+
+      <div class="modal-footer">
+        <div style="display: flex; gap: var(--space-sm); flex-wrap: wrap;">
+          <button type="button" class="btn btn-secondary" onclick="navigateModal(-1)">خانهٔ قبلی</button>
+          <button type="button" class="btn btn-secondary" onclick="navigateModal(1)">خانهٔ بعدی</button>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="closeSpaceModal()">ادامهٔ بازی روی تخته</button>
+      </div>
+    </div>
+  </div>
+
+  <api-shim></api-shim>
+  <script>
+    // =========================================================================
+    // 1. ALL 63 SPACES OF PIERRE DU VAL'S 1645 LE JEU DU MONDE
+    // =========================================================================
+    const REGIONS = {
+      americas: { id: `americas`, label: `حلقه ۱: جهان نو و اقیانوسیه (۱–۱۴)`, short: `جهان نو`, colorVar: `--map-ring-1` },
+      africa:   { id: `africa`,   label: `حلقه ۲: آفریقا و اطلس (۱۵–۲۵)`, short: `آفریقا`, colorVar: `--map-ring-2` },
+      asia:     { id: `asia`,     label: `حلقه ۳: آسیا و خاورمیانه (۲۶–۳۹)`, short: `آسیا`, colorVar: `--map-ring-3` },
+      europe:   { id: `europe`,   label: `حلقه ۴: اروپا و مدیترانه (۴۰–۵۴)`, short: `اروپا`, colorVar: `--map-ring-4` },
+      france:   { id: `france`,   label: `حلقه ۵: فرانسه و پاریس (۵۵–۶۳)`, short: `فرانسه`, colorVar: `--map-ring-5` }
+    };
+
+    const TYPE_LABELS = {
+      normal: `مسیر عادی`,
+      myth: `خطای نقشه‌نگاری`,
+      shortcut: `بادبان موافق`,
+      inn: `توقف‌گاه (۱ نوبت)`,
+      hazard: `طوفان دریایی`,
+      goal: `مرکز جهان (پایان)`
+    };
+
+    const SPACES = [
+      {
+        id: 1, region: `americas`, type: `normal`, fa: `نیوفاندلند و باکالائو`, fr: `Terre Neuve`,
+        ruleText: `نقطهٔ آغازین در لبهٔ بیرونی جهان شناخته‌شده: سفر به سوی مرکز آغاز می‌شود.`,
+        story: `نخستین گام بازی در ساحل سرد نیوفاندلند برداشته می‌شود؛ جایی که ماهیگیران فرانسوی و باسک از سدهٔ شانزدهم در جست‌وجوی ماهی کاد به اقیانوس اطلس شمالی می‌رفتند و دروازهٔ ورود به آمریکای شمالی به‌شمار می‌رفت.`,
+        modern: `در نقشه‌های ۱۶۴۵ گاه نیوفاندلند به صورت مجموعه‌ای از جزایر پراکنده ترسیم می‌شد تا یک جزیرهٔ واحد.`
+      },
+      {
+        id: 2, region: `americas`, type: `normal`, fa: `کانادا و فرانسهٔ نو`, fr: `Canada ou Nouvelle-France`,
+        ruleText: `عادی: در امتداد رود سن‌لوران به سوی جنوب غرب پیش بروید.`,
+        story: `مستعمرهٔ رو به گسترش فرانسه در امتداد رود سن‌لوران که ساموئل دو شامپلن در آغاز سدهٔ هفدهم بنیان گذاشت. برای نقشه‌نگارانی چون پیر دو وال، این سرزمین پایگاه تجارت خز و حضور فرانسه در قارهٔ جدید بود.`,
+        modern: `مرزهای غربی فرانسهٔ نو در سال ۱۶۴۵ هنوز ناشناخته بود و دریاچه‌های بزرگ به شکل ناقص ترسیم می‌شدند.`
+      },
+      {
+        id: 3, region: `americas`, type: `normal`, fa: `فلوریدا و کارولینا`, fr: `Floride`,
+        ruleText: `عادی: گذر از کرانه‌های طوفانی خلیج مکزیک.`,
+        story: `در ادبیات جغرافیایی سدهٔ هفدهم فرانسه، نام «فلوریدا» نه تنها شبه‌جزیرهٔ امروزی، بلکه بخش بزرگی از جنوب شرق آمریکای شمالی را در بر می‌گرفت و یادآور کوشش‌های ناکام اوگنوهای فرانسوی برای استقرار در آن کرانه‌ها بود.`,
+        modern: `وسعت فلوریدا در اطلس‌های فرانسوی ۱۶۴۵ بسیار بزرگ‌تر از شبه‌جزیرهٔ واقعی و بدون جزئیات دقیق دلتای می‌سی‌سی‌پی ترسیم می‌شد.`
+      },
+      {
+        id: 4, region: `americas`, type: `normal`, fa: `اسپانیای نو (مکزیک)`, fr: `Nouvelle-Espagne`,
+        ruleText: `عادی: عبور از معادن نقره و شهرهای مستعمراتی.`,
+        story: `قلب ثروت اسپانیا در قارهٔ آمریکا که شهر مکزیکو در مرکز آن می‌درخشید. پیر دو وال در نقشهٔ خود تصویرهای نمادینی از کوه‌ها و شهرهای اسپانیای نو برای آموزش جایگاه معادن نقرهٔ امپراتوری اسپانیا آورده است.`,
+        modern: `در این دوره، امتداد خشکی مکزیک به سوی شمال غرب با خطای معروف کالیفرنیا پیوند می‌خورد.`
+      },
+      {
+        id: 5, region: `americas`, type: `myth`, fa: `جزیرهٔ کالیفرنیا`, fr: `Californie (Île)`, isMyth: true,
+        ruleText: `کشف خطای تاریخی نقشهٔ ۱۶۴۵! کالیفرنیا در این دایره به اشتباه یک جزیره ترسیم شده است.`,
+        story: `مشهورترین دایرهٔ بخش بیرونی بازی پیر دو وال! در دایرهٔ ۵، کالیفرنیا همچون یک جزیرهٔ عظیم و جدا افتاده در غرب مکزیک ترسیم شده است. دریانوردان اسپانیایی خلیج کالیفرنیا را تنگه‌ای سرتاسری پنداشتند و این خطا بیش از یک سده در نقشه‌های اروپایی ماندگار شد.`,
+        modern: `کالیفرنیا (باخا کالیفرنیا) یک شبه‌جزیرهٔ پیوسته به خشکی آمریکای شمالی است، نه جزیره؛ خلیج کالیفرنیا در شمال به خشکی می‌رسد.`
+      },
+      {
+        id: 6, region: `americas`, type: `shortcut`, jumpTo: 10, fa: `جزایر سلیمان و دریای آرام`, fr: `Îles Salomon`,
+        ruleText: `بادبان موافق! بادهای تجاری اقیانوس آرام شما را ۴ خانه به جلو، به خانهٔ ۱۰ می‌رساند.`,
+        story: `در سدهٔ هفدهم، جزایر سلیمان که آلوارو دو مندانیا کشف کرده بود، در نقشه‌ها سرگردان بود و گاه هزاران کیلومتر دورتر از جای واقعی یا نزدیک آمریکای جنوبی ترسیم می‌شد. کاوشگران از راه اقیانوس آرام جنوبی به سمت آب‌های جنوبی قاره می‌شتابند.`,
+        modern: `جایگاه طول جغرافیایی جزایر سلیمان تا پیش از اختراع کرنومتر دریایی در سدهٔ هجدهم با خطاهای شدید ثبت می‌شد.`
+      },
+      {
+        id: 7, region: `americas`, type: `normal`, fa: `پرو و کوزکو`, fr: `Pérou`,
+        ruleText: `عادی: صعود از دامنه‌های آند و سرزمین نقرهٔ پوتوسی.`,
+        story: `سرزمین امپراتوری پیشین اینکا و معادن افسانه‌ای نقرهٔ پوتوسی که اقتصاد اروپا را دگرگون ساخت. در نقشه‌های آموزشی ۱۶۴۵، پرو نماد ثروت جهان نو بود.`,
+        modern: `خط ساحلی پرو نسبتاً دقیق‌تر از نواحی داخلی آمازون ترسیم می‌شد، اما ارتفاعات آند صرفاً با تپه‌های نمادین نمایش داده می‌شد.`
+      },
+      {
+        id: 8, region: `americas`, type: `normal`, fa: `شیلی و کرانه‌های باختری`, fr: `Chili`,
+        ruleText: `عادی: دریانوردی به سمت جنوب در کنار رشته‌کوه آند.`,
+        story: `نوار باریکی میان اقیانوس آرام و کوه‌های بلند آند که در نقشه‌های سدهٔ هفدهم به صورت گذرگاهی به سوی تنگه‌های جنوبی و سرزمین‌های مه‌آلود ترسیم می‌شد.`,
+        modern: `جزایر جنوبی شیلی و آبدره‌های پاتاگونیا در ۱۶۴۵ هنوز به‌طور کامل نقشه‌برداری نشده بودند.`
+      },
+      {
+        id: 9, region: `americas`, type: `normal`, fa: `برزیل و آمازون`, fr: `Brésil`,
+        ruleText: `عادی: عبور از کرانه‌های شکر و جنگل‌های انبوه.`,
+        story: `سرزمین وسیع مستعمرهٔ پرتغال و صحنهٔ رقابت هلند و فرانسه برای پایه‌گذاری «فرانسهٔ استوایی». درختان برزیل و رود عظیم آمازون از برجسته‌ترین نشانه‌های این دایره در نقشهٔ دو وال هستند.`,
+        modern: `در ۱۶۴۵، افسانه‌های «آمازون‌های جنگجو» و دریاچهٔ خیالی پاریما هنوز در میانهٔ برزیل و گویان رسم می‌شد.`
+      },
+      {
+        id: 10, region: `americas`, type: `normal`, fa: `پاراگوئه و ریو دو لا پلاتا`, fr: `Paraguay`,
+        ruleText: `عادی: گذر از دشت‌های وسیع و «رود نقره».`,
+        story: `حوضهٔ گستردهٔ رود پارانا و ریو دو لا پلاتا که ماموریت‌های مذهبی یسوعیان در آن شکل گرفته بود و در اطلس‌های فرانسوی مرز میان برزیل و پاتاگونیا را نشان می‌داد.`,
+        modern: `سرچشمه‌های رودهای پاراگوئه و پارانا در نقشه‌های ۱۶۴۵ اغلب به دریاچه‌های فرضی بزرگی متصل نشان داده می‌شد.`
+      },
+      {
+        id: 11, region: `americas`, type: `hazard`, jumpTo: 7, fa: `تنگهٔ ماژلان`, fr: `Détroit de Magellan`,
+        ruleText: `طوفان سهمگین جنوبی! کشتی دچار باد مخالف می‌شود و ۴ خانه به خانهٔ ۷ (پرو) برمی‌گردد.`,
+        story: `پرمخاطره‌ترین گذرگاه دریایی شناخته‌شدهٔ سدهٔ هفدهم در انتهای آمریکای جنوبی. پیش از رواج مسیر دماغهٔ هورن، عبور از تنگهٔ مه‌آلود و صخره‌ای ماژلان آزمونی مرگبار برای ناوبران بود.`,
+        modern: `تنگهٔ ماژلان واقعاً یکی از طوفانی‌ترین آبراه‌های زمین است؛ در ۱۶۴۵ هنوز رابطهٔ دقیق آن با جزایر تیرا دل فوئگو به روشنی امروز رسم نمی‌شد.`
+      },
+      {
+        id: 12, region: `americas`, type: `myth`, fa: `سرزمین ناشناختهٔ ماژلانیکا`, fr: `Terre Magellanique`, isMyth: true,
+        ruleText: `کشف خطای تاریخی! قارهٔ فرضی جنوب («ترا آسترالیس») که هرگز وجود نداشت.`,
+        story: `جغرافی‌دانان از روزگار بطلمیوس تا ۱۶۴۵ بر این باور بودند که برای حفظ تعادل چرخش زمین، باید خشکی عظیمی در نیم‌کرهٔ جنوبی برابر با خشکی‌های شمال وجود داشته باشد. تیرا دل فوئگو را بخش شمالی این قارهٔ خیالی می‌پنداشتند.`,
+        modern: `قارهٔ غول‌پیکر ماژلانیکا یک فرضیهٔ اشتباه بود؛ جنوبگان واقعی بسیار کوچک‌تر و بسیار جنوبی‌تر است.`
+      },
+      {
+        id: 13, region: `americas`, type: `normal`, fa: `آنتیل و جزایر کارائیب`, fr: `Îles Antilles`,
+        ruleText: `عادی: بارگیری در بندرهای کارائیب پیش از بازگشت به شرق اقیانوس اطلس.`,
+        story: `مجمع‌الجزایری که در ۱۶۴۵ به میدان رقابت دزدان دریایی، کشتی‌های شکر فرانسه، انگلستان و اسپانیا تبدیل شده بود و پیوندگاه جهان نو با اقیانوس اطلس بود.`,
+        modern: `تعداد و موقعیت دقیق جزایر کوچک آنتیل در نقشه‌های سدهٔ هفدهم اغلب درشت‌نمایی می‌شد.`
+      },
+      {
+        id: 14, region: `americas`, type: `myth`, fa: `گرینلند و دریای یخ‌بسته`, fr: `Groenland`, isMyth: true,
+        ruleText: `خطای نقشه‌نگاری! تصور گذرگاه آزاد قطبی و پیوستگی فرضی شمال اقیانوس اطلس.`,
+        story: `در سدهٔ هفدهم هنوز بسیاری امیدوار بودند از شمال گرینلند یا گذرگاه شمال غرب به آسیا برسند. نقشه‌ها گاه «جزیرهٔ خیالی فریسلند» را نیز در کنار گرینلند نشان می‌دادند.`,
+        modern: `جزیرهٔ فریسلند هرگز وجود نداشته و گذرگاه قطبی در ۱۶۴۵ زیر یخ‌های دائمی غیرقابل کشتیرانی بود.`
+      },
+      {
+        id: 15, region: `africa`, type: `normal`, fa: `جزایر آزور`, fr: `Îles Açores`,
+        ruleText: `عادی: ایستگاه ناوبری در میانهٔ اقیانوس اطلس به سوی حلقهٔ آفریقا.`,
+        story: `نخستین پناهگاه کشتی‌هایی که از قارهٔ آمریکا بازمی‌گشتند. موقعیت آزور برای تنظیم قطب‌نما و محاسبهٔ انحراف مغناطیسی از سدهٔ شانزدهم اهمیت حیاتی داشت.`,
+        modern: `جزایر آزور به دلیل جایگاه میانی خود، گاه توسط دریانوردان به عنوان خط مرزی میان اروپا و جهان نو فرض می‌شد.`
+      },
+      {
+        id: 16, region: `africa`, type: `inn`, fa: `جزایر قناری (نصف‌النهار مبدأ)`, fr: `Îles Canaries`,
+        ruleText: `توقف‌گاه بندری: کشتی برای آب‌گیری و تنظیم ابزار ناوبری ۱ نوبت در جزیرهٔ فرّو می‌ماند.`,
+        story: `به فرمان لوئی سیزدهم در سال ۱۶۳۴، جزیرهٔ فرّو (اِل هیِرو) در مجمع‌الجزایر قناری به عنوان نصف‌النهار مبدأ نقشه‌نگاری فرانسه برگزیده شد. در نقشهٔ ۱۶۴۵ پیر دو وال، این جزایر مرجع صفر طول جغرافیایی هستند!`,
+        modern: `در سال ۱۸۸۴ میلادی گرینویچ جایگزین نصف‌النهار جزیرهٔ فرّو شد، اما برای دو سده نقشه‌های فرانسوی از همین‌جا شماره می‌خوردند.`
+      },
+      {
+        id: 17, region: `africa`, type: `normal`, fa: `دماغهٔ سبز و سنگال`, fr: `Cap-Vert et Sénégal`,
+        ruleText: `عادی: دریانوردی در امتداد کرانهٔ باختری آفریقا.`,
+        story: `نقطه‌ای کلیدی در مسیر دریانوردی آفریقا که بازرگانان فرانسوی از دههٔ ۱۶۳۰ پایگاه‌هایی در دهانهٔ رود سنگال در آن ساخته بودند.`,
+        modern: `رشته رودهای داخلی غرب آفریقا، به‌ویژه پیوند نیجر و سنگال، تا سدهٔ نوزدهم به اشتباه یک رود پیوسته تصور می‌شد.`
+      },
+      {
+        id: 18, region: `africa`, type: `normal`, fa: `ساحل گینه`, fr: `Guinée`,
+        ruleText: `عادی: گذر از خلیج گینه و کرانهٔ طلا.`,
+        story: `منطقه‌ای که اروپاییان به نام کالاهای تجاری‌اش (ساحل فلفل، ساحل عاج و ساحل طلا) نام‌گذاری می‌کردند و ایستگاه کشتی‌های به سوی جنوب بود.`,
+        modern: `کرانهٔ گینه بر روی نقشه‌های ۱۶۴۵ به نسبت دقیق‌تر از درون قارهٔ آفریقا رسم می‌شد.`
+      },
+      {
+        id: 19, region: `africa`, type: `normal`, fa: `پادشاهی کنگو`, fr: `Congo`,
+        ruleText: `عادی: عبور از کرانهٔ میانی آفریقا و دهانهٔ رود کنگو.`,
+        story: `یکی از پادشاهی‌های قدرتمند آفریقای مرکزی که از سدهٔ پانزدهم با دریانوردان پرتغالی و سپس اروپاییان دیگر روابط دیپلماتیک داشت و در نقشه‌های فرانسوی جایگاه برجسته‌ای داشت.`,
+        modern: `مسیر واقعی رود کنگو در عمق قاره تا پایان سدهٔ نوزدهم بر نقشه‌نگاران اروپایی پوشیده ماند.`
+      },
+      {
+        id: 20, region: `africa`, type: `shortcut`, jumpTo: 24, fa: `دماغهٔ امید نیک`, fr: `Cap de Bonne-Espérance`,
+        ruleText: `بادبان موافق! دورزدن جنوبی‌ترین کانون دریانوردی، شما را ۴ خانه به جلو، به خانهٔ ۲۴ (مصر) می‌جهاند.`,
+        story: `دروازهٔ بزرگ میان اقیانوس اطلس و اقیانوس هند. دورزدن «دماغهٔ طوفان‌ها» که پادشاه پرتغال آن را «امید نیک» نامید، راه را به سوی ادویه‌های شرق می‌گشود.`,
+        modern: `دماغهٔ آگولاس اندکی جنوبی‌تر از دماغهٔ امید نیک است، اما در نقشه‌های ۱۶۴۵ دماغهٔ امید نیک مرز اصلی دو اقیانوس بود.`
+      },
+      {
+        id: 21, region: `africa`, type: `myth`, fa: `امپراتوری مونوموتاپا`, fr: `Monomotapa`, isMyth: true,
+        ruleText: `خطای نقشه‌نگاری! سرزمین افسانه‌ای شهرهای زرین در درون آفریقای جنوبی.`,
+        story: `نقشه‌نگاران سدهٔ هفدهم بر پایهٔ شنیده‌هایی دربارهٔ پادشاهی موتاپا، امپراتوری پهناوری پر از شهرهای سنگ‌فرش‌شده و معادن زر در جنوب آفریقا ترسیم می‌کردند که تا دریاچه‌های فرضی سرچشمهٔ نیل کشیده شده بود.`,
+        modern: `پادشاهی موتاپا واقعاً در زیمبابوه و موزامبیک وجود داشت، اما وسعت، شهرهای افسانه‌ای و دریاچه‌های پیرامون آن در نقشه‌های ۱۶۴۵ اغراق‌آمیز بود.`
+      },
+      {
+        id: 22, region: `africa`, type: `normal`, fa: `ماداگاسکار (جزیرهٔ دوفین)`, fr: `Madagascar ou Île Dauphine`,
+        ruleText: `عادی: توقف کوتاهی در کرانهٔ شرقی آفریقا و اقیانوس هند.`,
+        story: `پادشاهی فرانسه در دههٔ ۱۶۴۰ نام «جزیرهٔ دوفین» را بر ماداگاسکار نهاد و نخستین پایگاه تجاری خود (فورت دوفین) را در سال ۱۶۴۳ در جنوب آن بنا کرد—هم‌زمان با طراحی این نقشه توسط دو وال!`,
+        modern: `ماداگاسکار یکی از دقیق‌ترین جزایر بزرگ رسم‌شده در اطلس‌های سدهٔ هفدهم بود، هرچند پهنای تنگهٔ موزامبیک متغیر بود.`
+      },
+      {
+        id: 23, region: `africa`, type: `myth`, fa: `حبشه و قلمرو کشیش یوحنا`, fr: `Abyssinie (Prêtre Jean)`, isMyth: true,
+        ruleText: `کشف خطای تاریخی! پیوند افسانه‌ای امپراتور مسیحی مشرق‌زمین با اتیوپی.`,
+        story: `افسانهٔ قرون وسطایی «کشیش یوحنا» سرانجام در نقشه‌های سدهٔ شانزدهم و هفدهم به حبشه (اتیوپی) منتقل شد. دو وال قلمرو حبشه را بسیار گسترده و متصل به دریاچه‌های دوقلوی سرچشمهٔ نیل نشان می‌داد.`,
+        modern: `افسانهٔ کشیش یوحنا زادهٔ تخیل اروپاییان بود و دریاچهٔ تانا سرچشمهٔ نیل آبی است، نه دریاچه‌های دوقلوی بطلمیوسی.`
+      },
+      {
+        id: 24, region: `africa`, type: `normal`, fa: `مصر و قاهره`, fr: `Égypte et Le Caire`,
+        ruleText: `عادی: رسیدن به درهٔ نیل و پیوندگاه آفریقا با شرق مدیترانه.`,
+        story: `سرزمین باستانی اهرام و دلتای نیل که تحت فرمانروایی عثمانی بود و برای بازرگانان مارسی و کاروان‌های ادویه از دریای سرخ اهمیت کلیدی داشت.`,
+        modern: `شکل دلتا و کرانه‌های مدیترانه‌ای مصر از زمان باستان نسبتاً دقیق ترسیم می‌شد.`
+      },
+      {
+        id: 25, region: `africa`, type: `normal`, fa: `سواحل بربری (الجزیره و تونس)`, fr: `Barbarie`,
+        ruleText: `عادی: عبور از کرانهٔ شمالی آفریقا و حرکت به سوی حلقهٔ آسیا.`,
+        story: `شامل ایالت‌های الجزیره، تونس و طرابلس در شمال آفریقا که دریانوردان مدیترانه همواره باید مراقب کشتی‌های مسلح بربری آن می‌بودند.`,
+        modern: `نام «بربری» برگرفته از قوم آمازیغ (بربر) در متون جغرافیایی اروپایی تا سدهٔ نوزدهم به کار می‌رفت.`
+      },
+      {
+        id: 26, region: `asia`, type: `normal`, fa: `شبه‌جزیرهٔ عربستان`, fr: `Arabie`,
+        ruleText: `عادی: ورود به حلقهٔ سوم (آسیا) از راه دریای سرخ و خلیج فارس.`,
+        story: `سرزمین مکه، مدینه، عدن و بندرهای بخور و قهوه که جغرافی‌دانان سدهٔ هفدهم آن را به سه بخش عربستان سنگی، بیابانی و خوشبخت (یمن) تقسیم می‌کردند.`,
+        modern: `پهنهٔ بیابان ربع‌الخالی در مرکز عربستان در نقشه‌های ۱۶۴۵ خالی یا با کوهستان‌های خیالی پر می‌شد.`
+      },
+      {
+        id: 27, region: `asia`, type: `normal`, fa: `ایران صفوی (اصفهان)`, fr: `Perse`,
+        ruleText: `عادی: گذر از فلات ایران، کاروان‌های ابریشم و پایتخت باشکوه اصفهان.`,
+        story: `در سال ۱۶۴۵، ایران در دوران شاه عباس دوم صفوی یکی از قدرت‌های بزرگ شرق بود و شهر اصفهان مرکز تجارت ابریشم، فرش و رفت‌وآمد جهانگردان فرانسوی چون تاورنیه و شاردن به‌شمار می‌آمد.`,
+        modern: `در نقشه‌های ۱۶۴۵، دریای خزر (کاسپین) معمولاً به صورت دایره‌ای پهن یا شرقی-غربی به جای کشیدگی شمالی-جنوبی ترسیم می‌شد.`
+      },
+      {
+        id: 28, region: `asia`, type: `normal`, fa: `امپراتوری گورکانی هند`, fr: `Empire du Grand Mogol`,
+        ruleText: `عادی: دیدار با دربار باشکوه شاه‌جهان و سرزمین سند و گنگ.`,
+        story: `امپراتوری پهناور «مغول کبیر» در هند که در همان سال‌های ۱۶۴۵ در اوج شکوه معماری (تاج‌محل در حال تکمیل) قرار داشت و اروپاییان در پی بازرگانی منسوجات و الماس با آن بودند.`,
+        modern: `شکل مثلثی شبه‌جزیرهٔ هند در نقشه‌های سدهٔ هفدهم اغلب کوتاه‌تر و پهن‌تر از هندسهٔ واقعی کشیده می‌شد.`
+      },
+      {
+        id: 29, region: `asia`, type: `normal`, fa: `گوا و ساحل مالابار`, fr: `Goa et Malabar`,
+        ruleText: `عادی: عبور از بنادر فلفل سیاه و کرانهٔ جنوب باختری هند.`,
+        story: `گوا مرکز اصلی فرمانروایی دریایی پرتغال در اقیانوس هند بود و ساحل مالابار تامین‌کنندهٔ اصلی فلفل سیاه برای بازارهای پاریس و لیسبون.`,
+        modern: `منطقهٔ مالابار نخستین نقطهٔ تماس پیوستهٔ دریانوردان اروپایی با شبه‌قارهٔ هند پس از واسکو دو گاما بود.`
+      },
+      {
+        id: 30, region: `asia`, type: `normal`, fa: `شبه‌جزیرهٔ مالاکا`, fr: `Presqu'île de Malacca`,
+        ruleText: `عادی: عبور از تنگهٔ راهبردی میان اقیانوس هند و دریای چین.`,
+        story: `گذرگاهی که در ۱۶۴۱ به دست کمپانی هند شرقی هلند افتاده بود و دروازهٔ اصلی تجارت شرق و جنوب شرق آسیا به شمار می‌رفت.`,
+        modern: `نقشه‌نگاران باستان اینجا را «شبه‌جزیرهٔ زرین» می‌نامیدند؛ در ۱۶۴۵ جایگاه آن به خوبی شناخته شده بود.`
+      },
+      {
+        id: 31, region: `asia`, type: `hazard`, jumpTo: 27, fa: `سوماترا و جاوه`, fr: `Sumatra et Java`,
+        ruleText: `باد موسمی واژگون! طوفان استوایی کشتی را ۴ خانه به خانهٔ ۲۷ (ایران) برمی‌گرداند.`,
+        story: `دو جزیرهٔ بزرگ مجمع‌الجزایر اندونزی و مرکز تجارت ادویه و پایگاه باتاویا (جاکارتا) که در سدهٔ هفدهم ناوبری در آب‌های کم‌عمق آن وابسته به بادهای موسمی بود.`,
+        modern: `ساحل جنوبی جزیرهٔ جاوه در بسیاری از نقشه‌های نیمهٔ نخست سدهٔ هفدهم هنوز کامل ترسیم نشده و به صورت فرضی با خط‌چین بسته می‌شد.`
+      },
+      {
+        id: 32, region: `asia`, type: `myth`, fa: `جزایر ملوک (جزایر ادویه)`, fr: `Îles Moluques`, isMyth: true,
+        ruleText: `افسانهٔ جغرافیایی: بهشت جوز هندی و میخک که موقعیتش سال‌ها پنهان نگاه داشته می‌شد.`,
+        story: `تنها خاستگاه میخک و جوز هندی در جهان! در سده‌های شانزدهم و هفدهم نقشه‌نگاران و قدرت‌های استعماری عمداً یا از روی خطا محل و اندازهٔ جزایر ملوک را در نقشه‌ها جابه‌جا می‌کردند تا رقیبان را گمراه سازند.`,
+        modern: `جزایر کوچک ترناته، تیدوره و باندا در شرق اندونزی بسیار کوچک‌تر از مقیاس اغراق‌آمیزشان در نقشه‌های قدیمی هستند.`
+      },
+      {
+        id: 33, region: `asia`, type: `normal`, fa: `مجمع‌الجزایر فیلیپین`, fr: `Philippines`,
+        ruleText: `عادی: بندر تجاری مانیل و پیوندگاه نقرهٔ مکزیک با ابریشم چین.`,
+        story: `جزایری که به نام فیلیپ دوم اسپانیا نام‌گذاری شد و کشتی‌های گالئون مانیل سالانه از راه اقیانوس آرام میان آکاپولکو و مانیل در رفت‌وآمد بودند.`,
+        modern: `شمار جزایر فیلیپین در ۱۶۴۵ تنها به صورت چند جزیرهٔ اصلی درشت نمایش داده می‌شد.`
+      },
+      {
+        id: 34, region: `asia`, type: `myth`, fa: `ژاپن (جزیره و بندر ناکازاکی)`, fr: `Japon`, isMyth: true,
+        ruleText: `خطای نقشه‌نگاری! ژاپن در کنار جزایر افسانه‌ای «طلا و نقره» (Rica de Oro) ترسیم می‌شد.`,
+        story: `در سال ۱۶۴۵ ژاپن درهای خود را بر خارجی‌ها بسته بود (ساکوکو) و تنها هلندی‌ها در جزیرهٔ مصنوعی دجیما در ناکازاکی حق تجارت داشتند. در نقشه‌های این عصر، شکل هوکایدو (یسو) با قارهٔ آسیا یا جزایر خیالی آمیخته می‌شد.`,
+        modern: `جزیرهٔ شمالی «یسو» (هوکایدو) در سدهٔ هفدهم گاه بزرگ‌تر از هونشو و چسبیده به سرزمین اصلی آسیا تصور می‌شد.`
+      },
+      {
+        id: 35, region: `asia`, type: `normal`, fa: `چین و شهر پکن`, fr: `Chine`,
+        ruleText: `عادی: عبور از دیوار بزرگ و امپراتوری در حال دگرگونی چین.`,
+        story: `دقیقاً در سال‌های ۱۶۴۴–۱۶۴۵ دودمان مینگ سقوط کرد و دودمان چینگ بر پکن چیره شد. به لطف گزارش‌های یسوعیانی چون ماتئو ریچی و مارتینی، آگاهی اروپا از استان‌های چین در حال افزایش بود.`,
+        modern: `خط ساحلی شرقی چین و شبه‌جزیرهٔ کره در ۱۶۴۵ هنوز گاه کره را به صورت جزیره نشان می‌داد.`
+      },
+      {
+        id: 36, region: `asia`, type: `myth`, fa: `تاتارستان و ختای`, fr: `Grande Tartarie et Cathay`, isMyth: true,
+        ruleText: `خطای نقشه‌نگاری! دشت‌های بی‌مرز آسیای میانه و استپ‌های افسانه‌ای مارکوپولو.`,
+        story: `تا سدهٔ هفدهم، بخش عظیمی از آسیای شمالی و مرکزی زیر نام مبهم «تاتارستان بزرگ» ترسیم می‌شد و برخی نقشه‌ها هنوز «ختای» مارکوپولو را سرزمینی جدا از چین می‌پنداشتند.`,
+        modern: `تاتارستان بزرگ یک عنوان کلی اروپایی برای سیبری، آسیای مرکزی و مغولستان بود؛ مرزهای شمالی آسیا در ۱۶۴۵ ناشناخته بود.`
+      },
+      {
+        id: 37, region: `asia`, type: `normal`, fa: `مسکووی (روسیه)`, fr: `Moscovie`,
+        ruleText: `عادی: حرکت از سرزمین تزارها به سوی مرزهای اروپا.`,
+        story: `دوک‌نشین بزرگ مسکو که در روزگار تزار الکسی میخائیلوویچ (تاج‌گذاری ۱۶۴۵) در حال گسترش به سوی شرق سیبری بود و پیوندگاه شرق دور با اروپای خاوری به‌شمار می‌آمد.`,
+        modern: `در ۱۶۴۵، کوه‌های اورال به صورت رشته‌کوه‌های نمادین و رودهای سیبری با مسیرهای نادرست ثبت می‌شد.`
+      },
+      {
+        id: 38, region: `asia`, type: `inn`, fa: `آناتولی و شام (اسکندرون و حلب)`, fr: `Natolie et Levant`,
+        ruleText: `کاروان‌سرای بزرگ شرق: ۱ نوبت استراحت برای بازرسی کالاهای ابریشم و ادویه.`,
+        story: `ایستگاه بزرگ تجاری بازرگانان فرانسوی در شرق مدیترانه (اسکله‌های لوانت). کاروان‌های اصفهان و بغداد به حلب می‌رسیدند و از بندر اسکندرون راهی مارسی می‌شدند.`,
+        modern: `نقشه‌برداری کرانه‌های شام و آناتولی به دلیل تردد فراوان کشتی‌های بازرگانی بسیار دقیق‌تر از درون فلات بود.`
+      },
+      {
+        id: 39, region: `asia`, type: `shortcut`, jumpTo: 42, fa: `سرزمین مقدس (اورشلیم)`, fr: `Terre Sainte`,
+        ruleText: `مسیر زیارتی و دریایی مدیترانه! ۳ خانه به جلو، مستقیم به خانهٔ ۴۲ (ونیز) می‌جهید.`,
+        story: `محور معنوی بسیاری از نقشه‌های اروپایی از سده‌های میانه تا سدهٔ هفدهم که با تصویر شهر اورشلیم، رود اردن و دریای جلیل آراسته می‌شد.`,
+        modern: `در نقشهٔ دو وال، سرزمین مقدس آخرین ایستگاه حلقهٔ آسیا پیش از ورود به قلب اروپاست.`
+      },
+      {
+        id: 40, region: `europe`, type: `normal`, fa: `یونان و مجمع‌الجزایر اژه`, fr: `Grèce et Archipel`,
+        ruleText: `عادی: ورود به حلقهٔ چهارم (اروپا) از دریای اژه.`,
+        story: `مهد جغرافیا و فلسفهٔ باستان که در سال ۱۶۴۵ جزئی از امپراتوری عثمانی بود و هم‌زمان جنگ ونیز و عثمانی بر سر جزیرهٔ کرت در آب‌های آن آغاز شده بود.`,
+        modern: `شبه‌جزیرهٔ پلوپونز و جزایر اژه از کهن‌ترین بخش‌های شناخته‌شدهٔ نقشه‌نگاری اروپا هستند.`
+      },
+      {
+        id: 41, region: `europe`, type: `normal`, fa: `قسطنطنیه (استانبول)`, fr: `Constantinople`,
+        ruleText: `عادی: تنگهٔ بسفر و پایتخت امپراتوری عثمانی.`,
+        story: `پایتخت سلطان ابراهیم عثمانی و شهر پیوند دو قارهٔ آسیا و اروپا که سفیران فرانسه بر پایهٔ پیمان‌های کاپیتولاسیون جایگاه ویژه‌ای در آن داشتند.`,
+        modern: `موقعیت تنگه‌های بسفر و داردانل در ۱۶۴۵ به دقت در نقشه‌های بندری (پورتولان) ثبت شده بود.`
+      },
+      {
+        id: 42, region: `europe`, type: `shortcut`, jumpTo: 47, fa: `جمهوری ونیز`, fr: `Venise`,
+        ruleText: `ناوگان بازرگانی آدریاتیک! ۵ خانه به جلو، تا خانهٔ ۴۷ (پرتغال) پیش می‌تازید.`,
+        story: `«ملکهٔ دریای آدریاتیک» و یکی از مراکز بزرگ چاپ نقشه در اروپا. هرچند مرکز تجارت اقیانوسی به آمستردام و لیسبون منتقل شده بود، ونیز همچنان لنگرگاه اصلی میان شام و اروپا بود.`,
+        modern: `کمی خطای جهت‌گیری شمال-جنوب در دریای آدریاتیک در نقشه‌های این دوران رو به اصلاح کامل بود.`
+      },
+      {
+        id: 43, region: `europe`, type: `normal`, fa: `رم و ایالات پاپی`, fr: `Rome`,
+        ruleText: `عادی: عبور از پایتخت کلیسای کاتولیک و گنجینهٔ نقشه‌های واتیکان.`,
+        story: `شهر رم در سال‌های پاپی اینوسنت دهم، مرکز هنری باروک و کانون مبلغان جغرافی‌دان که گزارش‌های جهان را از مکزیک تا ژاپن گردآوری می‌کردند.`,
+        modern: `نقشه‌برداری شبه‌جزیرهٔ ایتالیا در ۱۶۴۵ به لطف اطلس‌های ماژینی دقت بالایی یافته بود.`
+      },
+      {
+        id: 44, region: `europe`, type: `normal`, fa: `ناپل و جزیرهٔ سیسیل`, fr: `Naples et Sicile`,
+        ruleText: `عادی: گذر از آتشفشان اتنا و تنگهٔ مسینا.`,
+        story: `جنوب ایتالیا و بزرگ‌ترین جزیرهٔ مدیترانه که زیر فرمانروایی اسپانیا قرار داشت و دروازهٔ گذر به غرب مدیترانه بود.`,
+        modern: `موقعیت سیسیل در تلاقی غرب و شرق مدیترانه همواره از ستون‌های نقشه‌های دریایی بود.`
+      },
+      {
+        id: 45, region: `europe`, type: `normal`, fa: `جزیرهٔ مالت`, fr: `Malte`,
+        ruleText: `عادی: دژ دریایی شوالیه‌های سنت جان در میانهٔ مدیترانه.`,
+        story: `جزیرهٔ صخره‌ای کوچکی که با وجود مساحت اندک، به دلیل جایگاه نظامی شوالیه‌های مالت در نقشه‌های سدهٔ هفدهم بزرگ‌تر از اندازهٔ واقعی رسم می‌شد.`,
+        modern: `این جزیره نقطهٔ توقف ناوگان‌های مسیحی میان سیسیل و سواحل آفریقا بود.`
+      },
+      {
+        id: 46, region: `europe`, type: `hazard`, jumpTo: 41, fa: `تنگهٔ جبل‌الطارق`, fr: `Détroit de Gibraltar`,
+        ruleText: `جریان تند اقیانوسی! موج‌های ستون هرکول شما را ۵ خانه به خانهٔ ۴۱ (قسطنطنیه) بازمی‌گرداند.`,
+        story: `دروازهٔ باختری مدیترانه («ستون‌های هرکول») که جریان آب پرشتاب اقیانوس اطلس به درون مدیترانه و بادهای متغیر عبور از آن را برای کشتی‌های بادبانی دشوار می‌ساخت.`,
+        modern: `باریکی واقعی تنگهٔ جبل‌الطارق تنها ۱۴ کیلومتر است که در نقشه‌های کلی ۱۶۴۵ گاه پهن‌تر نمایش داده می‌شد.`
+      },
+      {
+        id: 47, region: `europe`, type: `normal`, fa: `پرتغال و لیسبون`, fr: `Portugal`,
+        ruleText: `عادی: بندر بزرگ اقیانوس اطلس و گهوارهٔ عصر اکتشافات.`,
+        story: `پنج سال پیش از انتشار این نقشه (در ۱۶۴۰)، پرتغال استقلال خود را از اسپانیا بازیافت. لیسبون همچنان نقطهٔ عزیمت و بازگشت ناوگان‌های اقیانوسی به برزیل و گوا بود.`,
+        modern: `تعیین دقیق طول جغرافیایی لیسبون آغازگر پیوند دقیق‌تر قارهٔ اروپا و آمریکا در نقشه‌ها شد.`
+      },
+      {
+        id: 48, region: `europe`, type: `normal`, fa: `اسپانیا و مادرید`, fr: `Espagne`,
+        ruleText: `عادی: عبور از فلات کاستیا به سوی کرانه‌های شمالی.`,
+        story: `قدرت بزرگ رقیب فرانسه در سدهٔ هفدهم که در سال ۱۶۴۵ همچنان درگیر جنگ سی‌ساله با فرانسه بود. کوه‌های پیرنه مرز طبیعی میان این دو قلمرو را در نقشهٔ دو وال می‌ساخت.`,
+        modern: `اندازه و عرض شبه‌جزیرهٔ ایبری در اطلس‌های ۱۶۴۵ اندکی کشیده‌تر در راستای شرقی-غربی رسم می‌شد.`
+      },
+      {
+        id: 49, region: `europe`, type: `normal`, fa: `انگلستان و لندن`, fr: `Angleterre`,
+        ruleText: `عادی: عبور از کانال مانش به جزیرهٔ بریتانیا.`,
+        story: `در سال ۱۶۴۵ انگلستان درگیر جنگ داخلی میان شاه چارلز اول و پارلمان (نبرد نایزبی) بود. لندن به سرعت به رقیب دریایی هلند در اقیانوس‌ها بدل می‌شد.`,
+        modern: `شکل جزیرهٔ بریتانیای کبیر با اطلس‌های اسپید و بلائو در ۱۶۴۵ بسیار دقیق شده بود.`
+      },
+      {
+        id: 50, region: `europe`, type: `normal`, fa: `اسکاتلند`, fr: `Écosse`,
+        ruleText: `عادی: عبور از سرزمین‌های کوهستانی شمال بریتانیا.`,
+        story: `سرزمین شمالی بریتانیا و متحد تاریخی سنتی فرانسه («ائتلاف کهن») که در نقشه‌های فرانسوی جایگاهی مستقل در کنار انگلستان داشت.`,
+        modern: `خطوط ساحلی پرپیچ‌وخم غرب اسکاتلند و جزایر هبرید در سدهٔ هفدهم ساده ترسیم می‌شد.`
+      },
+      {
+        id: 51, region: `europe`, type: `normal`, fa: `ایرلند`, fr: `Irlande`,
+        ruleText: `عادی: جزیرهٔ زمردین در لبهٔ باختری اروپا.`,
+        story: `باخترین جزیرهٔ بزرگ اروپا که در میانهٔ سدهٔ هفدهم دستخوش ناآرامی‌های مذهبی و سیاسی بود و کرانه‌هایش پناهگاه کشتی‌های عبوری از اطلس شمالی به شمار می‌رفت.`,
+        modern: `پهنای جزیرهٔ ایرلند در برخی نقشه‌های فرانسوی دههٔ ۱۶۴۰ اندکی گردتر از شکل واقعی کشیده می‌شد.`
+      },
+      {
+        id: 52, region: `europe`, type: `inn`, fa: `هلند و آمستردام`, fr: `Provinces-Unies (Hollande)`,
+        ruleText: `توقف در بندر نقشه‌نگاران: ۱ نوبت استراحت در کارگاه‌های چاپ نقشهٔ آمستردام.`,
+        story: `در سال ۱۶۴۵، آمستردام پایتخت جهانی چاپ اطلس (خاندان بلائو و هوندیوس) و ثروتمندترین بندر بازرگانی اروپا بود. پیر دو وال خود در رقابتی خلاقانه با مکتب هلندی، مکتب نقشه‌نگاری فرانسه را پیش می‌برد.`,
+        modern: `مختصات هلند و دلتای راین از دقیق‌ترین بخش‌های نقشه‌برداری‌شدهٔ جهان در سدهٔ هفدهم بود.`
+      },
+      {
+        id: 53, region: `europe`, type: `shortcut`, jumpTo: 56, fa: `امپراتوری آلمان`, fr: `Allemagne`,
+        ruleText: `شاهراه تجاری رود راین! ۳ خانه به جلو، به خانهٔ ۵۶ (ساووا) پیشروی می‌کنید.`,
+        story: `سرزمین پرجمعیت دوقسمتی‌ها و شاهزاده‌نشین‌های امپراتوری مقدس روم که در ۱۶۴۵ در آستانهٔ پایان جنگ سی‌ساله و صلح وستفالیا قرار داشت.`,
+        modern: `تعدد مرزهای کوچک در آلمان باعث می‌شد نقشه‌های دقیق منطقه‌ای در آن رونق بی‌سابقه‌ای داشته باشد.`
+      },
+      {
+        id: 54, region: `europe`, type: `normal`, fa: `دانمارک، سوئد و لهستان`, fr: `Danemark, Suède et Pologne`,
+        ruleText: `عادی: آخرین ایستگاه اروپایی پیش از ورود به حلقهٔ درونی فرانسه.`,
+        story: `قدرت‌های بزرگ شمال و شرق اروپا و حوضهٔ دریای بالتیک؛ سوئد در سال ۱۶۴۵ در اوج قدرت نظامی خود در قارهٔ اروپا بود و گندم لهستان از بندر گدانسک به اروپای باختری صادر می‌شد.`,
+        modern: `جهت‌گیری شبه‌جزیرهٔ اسکاندیناوی در نیمهٔ سدهٔ هفدهم به درستی به سوی شمال شرق تصحیح شده بود.`
+      },
+      {
+        id: 55, region: `france`, type: `normal`, fa: `سوئیس و کوه‌های آلپ`, fr: `Suisse`,
+        ruleText: `عادی: ورود به حلقهٔ پنجم و دروازه‌های شرقی پادشاهی فرانسه.`,
+        story: `کنفدراسیون کوهستانی سوئیس در گذرگاه‌های آلپ که سربازان نگهبان پادشاه فرانسه از آن برمی‌خاستند و سرچشمهٔ رودهای بزرگ راین و رُن بود.`,
+        modern: `ارتفاعات آلپ در ۱۶۴۵ بدون خطوط تراز و تنها با نمای مینیاتوری قله‌ها نمایش داده می‌شد.`
+      },
+      {
+        id: 56, region: `france`, type: `normal`, fa: `ساووا و پیدمونت`, fr: `Savoie`,
+        ruleText: `عادی: عبور از گردنه‌های آلپ به سوی دشت‌های فرانسه.`,
+        story: `دوک‌نشین کوهستانی ساووا در مرز فرانسه و ایتالیا که شاهراه تاریخی لشکرکشی‌ها و سفرهای فرهنگی میان پاریس و رم بود.`,
+        modern: `مرزهای ساووا تا سدهٔ نوزدهم میان فرانسه و ایتالیا دستخوش جابه‌جایی بود.`
+      },
+      {
+        id: 57, region: `france`, type: `normal`, fa: `لورن و آلزاس`, fr: `Lorraine`,
+        ruleText: `عادی: گذر از دژهای شرقی در راه پاریس.`,
+        story: `ایالت‌های استراتژیک در شرق فرانسه که در سال ۱۶۴۵ در کانون نبردهای پایانی جنگ سی‌ساله بودند و به تدریج به قلمرو تاج‌وتخت فرانسه پیوستند.`,
+        modern: `نقشه‌برداری دقیق دژهای نظامی لورن پایهٔ کارتوگرافی مهندسی سدهٔ هفدهم فرانسه شد.`
+      },
+      {
+        id: 58, region: `france`, type: `hazard`, jumpTo: 54, fa: `نرماندی و کرانهٔ مانش`, fr: `Normandie`,
+        ruleText: `مه‌گرفتگی سنگین مانش! ناچار ۴ خانه به خانهٔ ۵۴ (شمال اروپا) عقب می‌روید.`,
+        story: `ایالت سرسبز شمال باختر فرانسه و بندرهای روآن و لوهاور؛ دروازهٔ کشتی‌های فرانسوی که از کانادا و آنتیل بازمی‌گشتند. اما در بازی مارپیچی، خانهٔ ۵۸ همواره ایستگاه آزمایش صبر پیش از خط پایان است!`,
+        modern: `شبه جزیرهٔ کوتانتن در نرماندی از نخستین سواحلی بود که فرانسویان با مثلث‌بندی دقیق نقشه‌برداری کردند.`
+      },
+      {
+        id: 59, region: `france`, type: `normal`, fa: `بریتانی`, fr: `Bretagne`,
+        ruleText: `عادی: کرانهٔ باختری فرانسه و اقیانوس اطلس؛ تنها ۴ گام تا مرکز.`,
+        story: `شبه جزیرهٔ دلیران دریانورد و بندر سن‌مالو، زادگاه ژاک کارتیه که سفرهای نخستین فرانسه به کانادا از آن آغاز شده بود.`,
+        modern: `دندانهٔ دقیق خلیج‌های بریتانی در نقشه‌های دریانوردی سدهٔ هفدهم شهرت فراوان داشت.`
+      },
+      {
+        id: 60, region: `france`, type: `normal`, fa: `گوین و گاسکونی (بوردو)`, fr: `Guyenne et Gascogne`,
+        ruleText: `عادی: عبور از جنوب غرب فرانسه و بندر پررونق بوردو.`,
+        story: `سرزمین پهناور جنوب باختری فرانسه میان رود گارون و کوه‌های پیرنه که مرکز تجارت دریایی اقیانوس اطلس و تاکستان‌های مشهور اروپا بود.`,
+        modern: `خور ژیروند در نزدیکی بوردو یکی از بزرگ‌ترین دهانه‌های رودخانه‌ای اروپا در این نقشه است.`
+      },
+      {
+        id: 61, region: `france`, type: `normal`, fa: `لانگدوک (تولوز)`, fr: `Languedoc`,
+        ruleText: `عادی: حرکت از کرانهٔ مدیترانه‌ای فرانسه به سوی شمال.`,
+        story: `ایالت بزرگ جنوب فرانسه با شهر تاریخی تولوز و بندرهای مدیترانه که دو دهه پس از این نقشه با حفر کانال دو میدی اقیانوس اطلس را به مدیترانه پیوند داد.`,
+        modern: `نقشهٔ دو وال دروازه‌های جنوب فرانسه را هم‌پای مرکز دربار ترسیم کرده است.`
+      },
+      {
+        id: 62, region: `france`, type: `normal`, fa: `پرووانس و لیون`, fr: `Provence et Lyon`,
+        ruleText: `عادی: تنها یک گام تا پاریس! برای ورود به خانهٔ ۶۳ باید دقیقاً عدد ۱ بیاورید.`,
+        story: `مسیر شاهی از بندر مارسی و شهر ابریشم لیون در امتداد درهٔ رُن به سوی پاریس. بازیکن اینجا در آستانهٔ پیروزی و در آینهٔ پایتخت ایستاده است.`,
+        modern: `جادهٔ پستی لیون به پاریس پررفت‌وآمدترین محور ارتباطی فرانسه در سدهٔ هفدهم بود.`
+      },
+      {
+        id: 63, region: `france`, type: `goal`, fa: `پاریس — پادشاهی فرانسه`, fr: `PARIS • Royaume de France`,
+        ruleText: `پایان پیروزمندانهٔ بازی! قلب جهان در نقشهٔ ۱۶۴۵ پیر دو وال و جایگاه نشان سلطنتی و کنت دو ویوون.`,
+        story: `شما به مرکز مارپیچ ۶۳ دایره‌ای رسیدید! در نقشهٔ ۱۶۴۵ پیر دو وال، فرانسه و شهر پاریس نه در یک گوشه، بلکه دقیقاً در مرکز هستهٔ جهان جای گرفته‌اند تا برتری فرهنگی، سیاسی و علمی فرانسه را در سدهٔ هفدهم و شکوه تقدیم‌نامه به کنت دو ویوون به نمایش بگذارند.`,
+        modern: `نقطهٔ اوج فرانسه-محوری در نقشه‌نگاری آموزشی ۱۶۴۵؛ امروزه می‌دانیم هیچ کشور واحدی مرکز هندسی کرهٔ زمین نیست.`
+      }
+    ];
+
+    // =========================================================================
+    // 2. APPLICATION STATE & PERSISTENCE
+    // =========================================================================
+    const DEFAULT_STATE = {
+      playerMode: `solo`,
+      diceMode: `2d6`,
+      autoPopup: true,
+      currentPlayer: 0,
+      players: [
+        { id: 0, name: `کاوشگر یکم (زرشکی)`, pos: 0, skipNext: false, rolls: 0, finished: false },
+        { id: 1, name: `ناوبر حریف (آبی)`, pos: 0, skipNext: false, rolls: 0, finished: false }
+      ],
+      lastDice: [3, 4],
+      selectedSpaceId: 5,
+      discoveredMyths: [5],
+      visitedSpaces: [5],
+      logs: [`سفر آمادهٔ آغاز است. برای خروج از اقیانوس بیرونی و ورود به دایرهٔ ۱، تاس بریزید.`],
+      winner: null
+    };
+
+    let state = cloneState(DEFAULT_STATE);
+    let boardCoords = [];
+    let chartRegionsInstance = null;
+    let chartSimInstance = null;
+    let isRollingAnim = false;
+
+    function cloneState(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function getCssToken(name) {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+
+    async function persistState() {
+      try {
+        if (window.notebookAppApi && typeof window.notebookAppApi.setAppState === `function`) {
+          await window.notebookAppApi.setAppState(state);
+        }
+      } catch (err) {
+        // Safe fallback if running standalone outside host
+      }
+    }
+
+    // =========================================================================
+    // 3. SPIRAL BOARD GEOMETRY (63 CIRCLES + 2 CORNER INSETS + COAT OF ARMS)
+    // =========================================================================
+    function computeSpiralCoordinates() {
+      const cx = 460;
+      const cy = 365;
+      const coords = [];
+      // 63 circles arranged smoothly along an elliptical 3.8-turn inward spiral
+      // Outer edge (~rx=395, ry=295) down to center (63 at cx, cy)
+      const totalTurns = 3.65;
+      const startAngle = Math.PI * 1.12;
+      for (let i = 1; i <= 63; i++) {
+        if (i === 63) {
+          coords.push({ id: 63, x: cx, y: cy, r: 28 });
+          continue;
+        }
+        const t = (i - 1) / 62; // 0 to ~1
+        // Smooth radial decay with slight outer spacing compensation
+        const easeR = 1 - Math.pow(t, 0.92);
+        const rx = 56 + easeR * 344;
+        const ry = 44 + easeR * 252;
+        const angle = startAngle + t * totalTurns * Math.PI * 2;
+        const x = cx + Math.cos(angle) * rx;
+        const y = cy + Math.sin(angle) * ry;
+        const radius = i >= 55 ? 19 : (i <= 14 ? 17 : 18);
+        coords.push({ id: i, x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10, r: radius });
+      }
+      return coords;
+    }
+
+    function renderBoardSVG() {
+      const svg = document.getElementById(`board-svg`);
+      if (!svg) return;
+      boardCoords = computeSpiralCoordinates();
+
+      let html = ``;
+
+      // Outer engraved map double border
+      html += `<rect x="8" y="8" width="904" height="704" fill="var(--background)" stroke="var(--on-surface)" stroke-width="2.5"/>`;
+      html += `<rect x="16" y="16" width="888" height="688" fill="none" stroke="var(--outline)" stroke-width="1"/>`;
+
+      // Degree tick marks around border
+      for (let tx = 40; tx < 890; tx += 40) {
+        html += `<line x1="${tx}" y1="8" x2="${tx}" y2="16" stroke="var(--on-surface)" stroke-width="1"/>`;
+        html += `<line x1="${tx}" y1="704" x2="${tx}" y2="712" stroke="var(--on-surface)" stroke-width="1"/>`;
+      }
+      for (let ty = 40; ty < 690; ty += 40) {
+        html += `<line x1="8" y1="${ty}" x2="16" y2="${ty}" stroke="var(--on-surface)" stroke-width="1"/>`;
+        html += `<line x1="904" y1="${ty}" x2="912" y2="${ty}" stroke="var(--on-surface)" stroke-width="1"/>`;
+      }
+
+      // Cardinal compass direction labels
+      html += `<text x="460" y="34" text-anchor="middle" font-size="11" font-family="Vazirmatn, sans-serif" font-weight="700" fill="var(--on-surface-variant)">شمال • SEPTENTRIO</text>`;
+      html += `<text x="460" y="694" text-anchor="middle" font-size="11" font-family="Vazirmatn, sans-serif" font-weight="700" fill="var(--on-surface-variant)">جنوب • MERIDIES</text>`;
+
+      // Two small corner inset maps (mentioned in 1645 source description!)
+      // Top-Left Inset: Western Hemisphere
+      html += `<g aria-hidden="true">`;
+      html += `<rect x="26" y="26" width="136" height="114" fill="var(--surface-container-low)" stroke="var(--outline)" stroke-width="1.2"/>`;
+      html += `<circle cx="94" cy="76" r="40" fill="var(--background)" stroke="var(--on-surface)" stroke-width="1.2"/>`;
+      html += `<ellipse cx="94" cy="76" rx="20" ry="40" fill="none" stroke="var(--outline-variant)" stroke-width="0.9"/>`;
+      html += `<line x1="54" y1="76" x2="134" y2="76" stroke="var(--outline-variant)" stroke-width="0.9"/>`;
+      html += `<path d="M 76 50 Q 88 55 84 68 Q 95 78 90 102 Q 82 95 75 74 Z" fill="var(--surface-container-high)" stroke="var(--outline)" stroke-width="0.8"/>`;
+      html += `<text x="94" y="131" text-anchor="middle" font-size="9.5" font-family="Vazirmatn, sans-serif" font-weight="700" fill="var(--on-surface)">نقشهٔ گوشه: نیم‌کرهٔ باختری</text>`;
+      html += `</g>`;
+
+      // Top-Right Inset: Eastern Hemisphere
+      html += `<g aria-hidden="true">`;
+      html += `<rect x="758" y="26" width="136" height="114" fill="var(--surface-container-low)" stroke="var(--outline)" stroke-width="1.2"/>`;
+      html += `<circle cx="826" cy="76" r="40" fill="var(--background)" stroke="var(--on-surface)" stroke-width="1.2"/>`;
+      html += `<ellipse cx="826" cy="76" rx="20" ry="40" fill="none" stroke="var(--outline-variant)" stroke-width="0.9"/>`;
+      html += `<line x1="786" y1="76" x2="866" y2="76" stroke="var(--outline-variant)" stroke-width="0.9"/>`;
+      html += `<path d="M 806 54 Q 832 48 848 64 Q 842 84 826 88 Q 814 102 806 86 Z" fill="var(--surface-container-high)" stroke="var(--outline)" stroke-width="0.8"/>`;
+      html += `<text x="826" y="131" text-anchor="middle" font-size="9.5" font-family="Vazirmatn, sans-serif" font-weight="700" fill="var(--on-surface)">نقشهٔ گوشه: نیم‌کرهٔ خاوری</text>`;
+      html += `</g>`;
+
+      // Bottom-Right Cartouche (Title & Dedication)
+      html += `<g aria-hidden="true">`;
+      html += `<rect x="706" y="596" width="188" height="92" fill="var(--surface-container-low)" stroke="var(--on-surface)" stroke-width="1.4"/>`;
+      html += `<rect x="710" y="600" width="180" height="84" fill="none" stroke="var(--outline-variant)" stroke-width="1"/>`;
+      html += `<text x="800" y="622" text-anchor="middle" font-size="12" font-family="Bitter, serif" font-weight="800" fill="var(--primary)">LE JEU DU MONDE</text>`;
+      html += `<text x="800" y="640" text-anchor="middle" font-size="10.5" font-family="Vazirmatn, sans-serif" font-weight="700" fill="var(--on-surface)">پیر دو وال • پاریس ۱۶۴۵</text>`;
+      html += `<text x="800" y="657" text-anchor="middle" font-size="9.5" font-family="Vazirmatn, sans-serif" fill="var(--on-surface-variant)">تقدیم به کنت دو ویوون</text>`;
+      html += `<text x="800" y="674" text-anchor="middle" font-size="9" font-family="Vazirmatn, sans-serif" fill="var(--secondary)">شروع از دایره ۱ به سوی پاریس (۶۳)</text>`;
+      html += `</g>`;
+
+      // Bottom-Left Compass Rose & Start Portal
+      html += `<g aria-hidden="true">`;
+      html += `<circle cx="78" cy="642" r="34" fill="var(--surface-container-low)" stroke="var(--outline)" stroke-width="1.2"/>`;
+      html += `<polygon points="78,612 83,637 108,642 83,647 78,672 73,647 48,642 73,637" fill="var(--background)" stroke="var(--on-surface)" stroke-width="1.2"/>`;
+      html += `<polygon points="78,612 83,637 78,642" fill="var(--primary)"/>`;
+      html += `<circle cx="78" cy="642" r="4" fill="var(--on-surface)"/>`;
+      html += `<text x="78" y="690" text-anchor="middle" font-size="9.5" font-family="Vazirmatn, sans-serif" font-weight="700" fill="var(--on-surface-variant)">مبدأ عزیمت (خانه ۰)</text>`;
+      html += `</g>`;
+
+      // Spiral track connecting lines 1 -> 63
+      let pathD = `M ${boardCoords[0].x} ${boardCoords[0].y}`;
+      for (let i = 1; i < boardCoords.length; i++) {
+        pathD += ` L ${boardCoords[i].x} ${boardCoords[i].y}`;
+      }
+      html += `<path d="${pathD}" fill="none" stroke="var(--outline-variant)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+      // Shortcut & Hazard connector curves
+      SPACES.forEach(sp => {
+        if ((sp.type === `shortcut` || sp.type === `hazard`) && sp.jumpTo) {
+          const fromC = boardCoords[sp.id - 1];
+          const toC = boardCoords[sp.jumpTo - 1];
+          const midX = (fromC.x + toC.x) / 2 + (sp.type === `shortcut` ? -18 : 18);
+          const midY = (fromC.y + toC.y) / 2 - 14;
+          const strokeColor = sp.type === `shortcut` ? `var(--secondary)` : `var(--error)`;
+          html += `<path d="M ${fromC.x} ${fromC.y} Q ${midX} ${midY} ${toC.x} ${toC.y}" fill="none" stroke="${strokeColor}" stroke-width="1.4" stroke-dasharray="4 3" opacity="0.72"/>`;
+        }
+      });
+
+      // Central Coat of Arms emblem behind Circle 63 (Paris / France)
+      html += `<g aria-hidden="true">`;
+      html += `<circle cx="460" cy="365" r="42" fill="var(--primary-container)" stroke="var(--primary)" stroke-width="1.5" stroke-dasharray="3 2"/>`;
+      html += `<path d="M 442 330 L 452 320 L 460 328 L 468 320 L 478 330 Z" fill="var(--data-4)" stroke="var(--on-surface)" stroke-width="1"/>`;
+      html += `</g>`;
+
+      // 63 Interactive Circles
+      SPACES.forEach((sp, idx) => {
+        const c = boardCoords[idx];
+        const regColor = `var(${REGIONS[sp.region].colorVar})`;
+        let fillCol = `var(--background)`;
+        let strokeCol = regColor;
+        let dashAttr = ``;
+        let textCol = `var(--on-surface)`;
+
+        if (sp.type === `myth`) {
+          fillCol = `var(--primary-container)`;
+          strokeCol = `var(--primary)`;
+        } else if (sp.type === `shortcut`) {
+          fillCol = `var(--surface-container-low)`;
+          strokeCol = `var(--secondary)`;
+        } else if (sp.type === `inn`) {
+          fillCol = `var(--surface-container-high)`;
+          strokeCol = `var(--outline)`;
+          dashAttr = `stroke-dasharray="3 2"`;
+        } else if (sp.type === `hazard`) {
+          fillCol = `var(--surface-container)`;
+          strokeCol = `var(--error)`;
+        } else if (sp.type === `goal`) {
+          fillCol = `var(--primary)`;
+          strokeCol = `var(--on-surface)`;
+          textCol = `var(--on-primary)`;
+        }
+
+        const isSel = state.selectedSpaceId === sp.id ? `is-selected` : ``;
+        const isVis = state.visitedSpaces.includes(sp.id) ? `is-discovered` : ``;
+        const shortLabel = sp.id === 63 ? `پاریس` : (sp.id === 5 ? `کالیفرنیا` : sp.fa.split(` `)[0]);
+
+        html += `<g class="board-node ${isSel} ${isVis}" id="board-node-${sp.id}" tabindex="0" role="button" aria-label="خانه ${sp.id}: ${sp.fa}" onclick="selectSpace(${sp.id})" onkeydown="handleNodeKey(event, ${sp.id})">`;
+        html += `<circle class="node-ring-halo" cx="${c.x}" cy="${c.y}" r="${c.r + 3.5}" fill="none" stroke="none" stroke-width="1.2"/>`;
+        html += `<circle class="node-circle" cx="${c.x}" cy="${c.y}" r="${c.r}" fill="${fillCol}" stroke="${strokeCol}" stroke-width="2" ${dashAttr}/>`;
+        html += `<text x="${c.x}" y="${c.y + (sp.id === 63 ? -2 : 4)}" text-anchor="middle" font-size="${sp.id === 63 ? 13 : 11}" font-family="Vazirmatn, sans-serif" font-weight="800" fill="${textCol}">${toPersianDigits(sp.id)}</text>`;
+
+        if (sp.id === 63) {
+          html += `<text x="${c.x}" y="${c.y + 13}" text-anchor="middle" font-size="10" font-family="Vazirmatn, sans-serif" font-weight="700" fill="var(--on-primary)">پاریس</text>`;
+        } else if (sp.id === 5 || sp.id === 1 || sp.id === 12 || sp.id === 23 || sp.id === 27 || sp.id === 36 || sp.id === 42 || sp.id === 52 || sp.id === 62) {
+          html += `<text x="${c.x}" y="${c.y + c.r + 11}" text-anchor="middle" font-size="9.5" font-family="Vazirmatn, sans-serif" font-weight="700" fill="var(--on-surface)">${shortLabel}</text>`;
+        }
+        html += `</g>`;
+      });
+
+      // Player Pawns layer
+      html += `<g id="pawns-layer"></g>`;
+
+      svg.innerHTML = html;
+      renderPawns();
+    }
+
+    function renderPawns() {
+      const layer = document.getElementById(`pawns-layer`);
+      if (!layer) return;
+      const activePlayers = state.playerMode === `solo` ? [state.players[0]] : state.players;
+      let html = ``;
+
+      activePlayers.forEach((p, idx) => {
+        let px = 78;
+        let py = 606;
+        if (p.pos > 0 && boardCoords[p.pos - 1]) {
+          const c = boardCoords[p.pos - 1];
+          const offsetX = activePlayers.length > 1 ? (idx === 0 ? -9 : 9) : 0;
+          const offsetY = activePlayers.length > 1 ? (idx === 0 ? -9 : 5) : -8;
+          px = c.x + offsetX;
+          py = c.y + offsetY;
+        }
+        const fillCol = idx === 0 ? `var(--primary)` : `var(--tertiary)`;
+        const label = idx === 0 ? `۱` : `۲`;
+        html += `<g transform="translate(${px}, ${py})" aria-hidden="true">`;
+        html += `<circle cx="0" cy="0" r="10.5" fill="${fillCol}" stroke="var(--on-primary)" stroke-width="2"/>`;
+        html += `<text x="0" y="3.5" text-anchor="middle" font-size="9.5" font-family="Vazirmatn, sans-serif" font-weight="800" fill="var(--on-primary)">${label}</text>`;
+        html += `</g>`;
+      });
+
+      layer.innerHTML = html;
+    }
+
+    // =========================================================================
+    // 4. DICE RENDERING & GAMEPLAY ENGINE
+    // =========================================================================
+    function drawDieSVG(svgId, value, visible) {
+      const svg = document.getElementById(svgId);
+      if (!svg) return;
+      if (!visible) {
+        svg.style.display = `none`;
+        return;
+      }
+      svg.style.display = `block`;
+      const pipMap = {
+        1: [[24, 24]],
+        2: [[14, 14], [34, 34]],
+        3: [[14, 14], [24, 24], [34, 34]],
+        4: [[14, 14], [34, 14], [14, 34], [34, 34]],
+        5: [[14, 14], [34, 14], [24, 24], [14, 34], [34, 34]],
+        6: [[14, 12], [34, 12], [14, 24], [34, 24], [14, 36], [34, 36]]
+      };
+      const pips = pipMap[value] || pipMap[1];
+      let inner = `<rect x="2" y="2" width="44" height="44" fill="var(--background)" stroke="var(--on-surface)" stroke-width="2"/>`;
+      pips.forEach(([px, py]) => {
+        inner += `<circle cx="${px}" cy="${py}" r="3.8" fill="var(--on-surface)"/>`;
+      });
+      svg.innerHTML = inner;
+    }
+
+    function updateDiceVisuals(d1, d2) {
+      drawDieSVG(`die-1-svg`, d1, true);
+      drawDieSVG(`die-2-svg`, d2, state.diceMode === `2d6`);
+    }
+
+    function handleRollClick() {
+      if (isRollingAnim || state.winner !== null) return;
+      const pIdx = state.currentPlayer;
+      const player = state.players[pIdx];
+
+      if (player.skipNext) {
+        player.skipNext = false;
+        const msg = `${player.name} در این نوبت به دلیل توقف‌گاه بندری استراحت کرد و نوبت به بازیکن بعدی می‌رسد.`;
+        prependLog(msg);
+        setTurnBanner(msg);
+        advanceTurn();
+        renderAllUI();
+        persistState();
+        return;
+      }
+
+      isRollingAnim = true;
+      const d1El = document.getElementById(`die-1-svg`);
+      const d2El = document.getElementById(`die-2-svg`);
+      if (d1El) d1El.classList.add(`rolling`);
+      if (d2El) d2El.classList.add(`rolling`);
+
+      setTimeout(() => {
+        if (d1El) d1El.classList.remove(`rolling`);
+        if (d2El) d2El.classList.remove(`rolling`);
+        executeTurnRoll(pIdx);
+        isRollingAnim = false;
+      }, 240);
+    }
+
+    function executeTurnRoll(pIdx) {
+      const player = state.players[pIdx];
+      const d1 = Math.floor(Math.random() * 6) + 1;
+      const d2 = state.diceMode === `2d6` ? Math.floor(Math.random() * 6) + 1 : 0;
+      const total = d1 + d2;
+      state.lastDice = [d1, d2 || 1];
+      updateDiceVisuals(d1, d2 || 1);
+
+      player.rolls += 1;
+      const startPos = player.pos;
+      let rawTarget = startPos + total;
+      let bounceNote = ``;
+
+      if (rawTarget > 63) {
+        const overshoot = rawTarget - 63;
+        rawTarget = 63 - overshoot;
+        bounceNote = ` (بازگشت ${toPersianDigits(overshoot)} خانه‌ای از پاریس به دلیل مازاد تاس)`;
+      }
+
+      player.pos = rawTarget;
+      let sp = SPACES[rawTarget - 1];
+      recordDiscovery(sp);
+
+      let eventNote = `${player.name} با تاس ${toPersianDigits(total)} از خانهٔ ${toPersianDigits(startPos)} به خانهٔ ${toPersianDigits(rawTarget)} (${sp.fa}) رفت${bounceNote}.`;
+
+      // Resolve special space effects
+      if (sp.type === `shortcut` && sp.jumpTo) {
+        const dest = SPACES[sp.jumpTo - 1];
+        player.pos = dest.id;
+        recordDiscovery(dest);
+        eventNote += ` بادبان موافق! جهش به خانهٔ ${toPersianDigits(dest.id)} (${dest.fa}).`;
+        sp = dest;
+      } else if (sp.type === `hazard` && sp.jumpTo) {
+        const dest = SPACES[sp.jumpTo - 1];
+        player.pos = dest.id;
+        recordDiscovery(dest);
+        eventNote += ` طوفان دریایی! بازگشت به خانهٔ ${toPersianDigits(dest.id)} (${dest.fa}).`;
+        sp = dest;
+      } else if (sp.type === `inn`) {
+        player.skipNext = true;
+        eventNote += ` توقف در بندر: نوبت آینده استراحت.`;
+      }
+
+      if (player.pos === 63) {
+        player.finished = true;
+        state.winner = player.id;
+        eventNote = `پیروزی! ${player.name} پس از ${toPersianDigits(player.rolls)} پرتاب تاس دقیقاً به خانهٔ ۶۳ (پاریس، فرانسه) رسید!`;
+      }
+
+      state.selectedSpaceId = player.pos;
+      prependLog(eventNote);
+      setTurnBanner(eventNote);
+
+      if (state.winner === null) {
+        advanceTurn();
+      }
+
+      renderAllUI();
+      persistState();
+
+      if (state.autoPopup && !(state.playerMode === `ai` && pIdx === 1)) {
+        openSpaceModal(player.pos);
+      }
+
+      // If AI turn is next, trigger it gently
+      if (state.winner === null && state.playerMode === `ai` && state.currentPlayer === 1) {
+        setTimeout(() => {
+          if (state.winner === null && state.playerMode === `ai` && state.currentPlayer === 1) {
+            handleRollClick();
+          }
+        }, 720);
+      }
+    }
+
+    function advanceTurn() {
+      if (state.playerMode === `solo`) {
+        state.currentPlayer = 0;
+      } else {
+        state.currentPlayer = state.currentPlayer === 0 ? 1 : 0;
+      }
+    }
+
+    function recordDiscovery(sp) {
+      if (!state.visitedSpaces.includes(sp.id)) {
+        state.visitedSpaces.push(sp.id);
+      }
+      if (sp.isMyth && !state.discoveredMyths.includes(sp.id)) {
+        state.discoveredMyths.push(sp.id);
+      }
+    }
+
+    function prependLog(text) {
+      state.logs.unshift(text);
+      if (state.logs.length > 35) state.logs.pop();
+    }
+
+    function setTurnBanner(text) {
+      const el = document.getElementById(`turn-banner`);
+      if (el) el.textContent = text;
+    }
+
+    // =========================================================================
+    // 5. CONTROLS & UI UPDATES
+    // =========================================================================
+    function changePlayerMode(val) {
+      state.playerMode = val;
+      if (val === `solo`) {
+        state.currentPlayer = 0;
+      } else if (val === `ai`) {
+        state.players[1].name = `ناوبر ۱۶۴۵ (خودکار)`;
+      } else {
+        state.players[1].name = `کاوشگر دوم (آبی)`;
+      }
+      prependLog(`حالت بازی به «${val === `solo` ? `تک‌نفره` : val === `ai` ? `رقابت با ناوبر خودکار` : `دو نفره`}» تغییر یافت.`);
+      renderAllUI();
+      persistState();
+    }
+
+    function changeDiceMode(val) {
+      state.diceMode = val;
+      updateDiceVisuals(state.lastDice[0], state.lastDice[1]);
+      renderKPIs();
+      persistState();
+    }
+
+    function toggleAutoPopup(checked) {
+      state.autoPopup = checked;
+      persistState();
+    }
+
+    function resetGame(btn) {
+      if (btn && btn.dataset.armed !== `true`) {
+        btn.dataset.armed = `true`;
+        btn.textContent = `کلیک دوباره برای بازنشانی`;
+        setTimeout(() => {
+          if (btn.dataset.armed === `true`) {
+            btn.dataset.armed = `false`;
+            btn.textContent = `شروع دوباره`;
+          }
+        }, 3500);
+        return;
+      }
+      if (btn) {
+        btn.dataset.armed = `false`;
+        btn.textContent = `شروع دوباره`;
+      }
+      const keepMode = state.playerMode;
+      const keepDice = state.diceMode;
+      const keepPopup = state.autoPopup;
+      state = cloneState(DEFAULT_STATE);
+      state.playerMode = keepMode;
+      state.diceMode = keepDice;
+      state.autoPopup = keepPopup;
+      if (keepMode === `ai`) state.players[1].name = `ناوبر ۱۶۴۵ (خودکار)`;
+      if (keepMode === `two`) state.players[1].name = `کاوشگر دوم (آبی)`;
+
+      setTurnBanner(`بازی از نو آغاز شد. برای حرکت به سمت نیوفاندلند (۱) تاس بریزید.`);
+      renderAllUI();
+      persistState();
+    }
+
+    function selectSpace(id) {
+      const sp = SPACES.find(s => s.id === id);
+      if (!sp) return;
+      state.selectedSpaceId = id;
+      recordDiscovery(sp);
+      renderBoardHighlight();
+      renderInspector();
+      renderKPIs();
+      highlightGazetteerRow();
+      persistState();
+    }
+
+    function stepSelectedSpace(delta) {
+      let nextId = state.selectedSpaceId + delta;
+      if (nextId < 1) nextId = 63;
+      if (nextId > 63) nextId = 1;
+      selectSpace(nextId);
+    }
+
+    function focusSpaceFromOutside(id) {
+      selectSpace(id);
+      const board = document.getElementById(`board-svg`);
+      if (board) board.scrollIntoView({ behavior: `smooth`, block: `center` });
+    }
+
+    function handleNodeKey(event, id) {
+      if (event.key === `Enter` || event.key === ` `) {
+        event.preventDefault();
+        selectSpace(id);
+        openSpaceModal(id);
+      }
+    }
+
+    function renderAllUI() {
+      const modeSel = document.getElementById(`select-player-mode`);
+      const diceSel = document.getElementById(`select-dice-mode`);
+      const chkPopup = document.getElementById(`chk-auto-popup`);
+      if (modeSel) modeSel.value = state.playerMode;
+      if (diceSel) diceSel.value = state.diceMode;
+      if (chkPopup) chkPopup.checked = state.autoPopup;
+
+      const rollBtn = document.getElementById(`btn-roll-dice`);
+      if (rollBtn) {
+        rollBtn.disabled = state.winner !== null;
+        rollBtn.textContent = state.winner !== null ? `بازی به پایان رسید (پاریس ۶۳)` : `پرتاب تاس و حرکت`;
+      }
+
+      updateDiceVisuals(state.lastDice[0], state.lastDice[1]);
+      renderKPIs();
+      renderPlayersStrip();
+      renderBoardHighlight();
+      renderPawns();
+      renderInspector();
+      renderTravelLog();
+      highlightGazetteerRow();
+    }
+
+    function renderKPIs() {
+      const activeP = state.players[state.currentPlayer] || state.players[0];
+      const posEl = document.getElementById(`kpi-position`);
+      const regEl = document.getElementById(`kpi-region`);
+      const rollsEl = document.getElementById(`kpi-rolls`);
+      const modeEl = document.getElementById(`kpi-mode-label`);
+      const mythsEl = document.getElementById(`kpi-myths`);
+      const remEl = document.getElementById(`kpi-remaining`);
+      const pctEl = document.getElementById(`kpi-progress-pct`);
+
+      if (posEl) posEl.textContent = `خانه ${toPersianDigits(activeP.pos)} از ۶۳`;
+      if (regEl) {
+        if (activeP.pos === 0) {
+          regEl.textContent = `آمادهٔ عزیمت از اقیانوس بیرونی`;
+        } else {
+          const sp = SPACES[activeP.pos - 1];
+          regEl.textContent = `${sp.fa} • ${REGIONS[sp.region].short}`;
+        }
+      }
+      const totalRolls = state.playerMode === `solo` ? state.players[0].rolls : (state.players[0].rolls + state.players[1].rolls);
+      if (rollsEl) rollsEl.textContent = `${toPersianDigits(totalRolls)} پرتاب`;
+      if (modeEl) modeEl.textContent = state.diceMode === `2d6` ? `قانون ۲ تاس کلاسیک ۱۶۴۵` : `قانون ۱ تاس کاوش آرام`;
+      const totalMyths = SPACES.filter(s => s.isMyth).length;
+      if (mythsEl) mythsEl.textContent = `${toPersianDigits(state.discoveredMyths.length)} از ${toPersianDigits(totalMyths)}`;
+      const remaining = 63 - activeP.pos;
+      const pct = Math.round((activeP.pos / 63) * 100);
+      if (remEl) remEl.textContent = `${toPersianDigits(remaining)} خانه`;
+      if (pctEl) pctEl.textContent = `${toPersianDigits(pct)}٪ مسیر پیموده شده`;
+    }
+
+    function renderPlayersStrip() {
+      const strip = document.getElementById(`players-strip`);
+      if (!strip) return;
+      const list = state.playerMode === `solo` ? [state.players[0]] : state.players;
+      strip.innerHTML = list.map((p, idx) => {
+        const isActive = state.currentPlayer === idx && state.winner === null;
+        const posLabel = p.pos === 0 ? `خانه ۰ (مبدأ)` : `خانه ${toPersianDigits(p.pos)}: ${SPACES[p.pos - 1].fa}`;
+        const statusNote = p.finished ? `برنده در پاریس!` : (p.skipNext ? `استراحت ۱ نوبت` : (isActive ? `نوبت حرکت` : `در انتظار`));
+        return `
+          <div class="player-badge-card ${isActive ? `is-active` : ``}">
+            <div>
+              <div style="font-family: var(--font-label); font-weight: 700; font-size: 0.9rem;">
+                <span class="player-dot ${idx === 0 ? `dot-p1` : `dot-p2`}"></span>
+                ${p.name}
+              </div>
+              <div class="label-voice" style="margin-top: var(--space-xs);">${posLabel}</div>
+            </div>
+            <span class="tag">${statusNote}</span>
+          </div>
+        `;
+      }).join(``);
+    }
+
+    function renderBoardHighlight() {
+      SPACES.forEach(sp => {
+        const node = document.getElementById(`board-node-${sp.id}`);
+        if (!node) return;
+        node.classList.toggle(`is-selected`, sp.id === state.selectedSpaceId);
+        node.classList.toggle(`is-discovered`, state.visitedSpaces.includes(sp.id));
+      });
+    }
+
+    function renderInspector() {
+      const sp = SPACES.find(s => s.id === state.selectedSpaceId) || SPACES[4];
+      const reg = REGIONS[sp.region];
+
+      const numEl = document.getElementById(`insp-num`);
+      const tagEl = document.getElementById(`insp-tag`);
+      const titleEl = document.getElementById(`insp-title`);
+      const frEl = document.getElementById(`insp-french`);
+      const regEl = document.getElementById(`insp-region`);
+      const typeEl = document.getElementById(`insp-type-label`);
+      const ruleEl = document.getElementById(`insp-rule`);
+      const storyEl = document.getElementById(`insp-story`);
+      const modEl = document.getElementById(`insp-modern`);
+
+      if (numEl) {
+        numEl.textContent = toPersianDigits(sp.id);
+        numEl.classList.toggle(`is-myth`, Boolean(sp.isMyth));
+      }
+      if (tagEl) tagEl.textContent = sp.isMyth ? `افسانهٔ نقشه‌نگاری ۱۶۴۵` : `ایستگاه جغرافیایی`;
+      if (titleEl) titleEl.textContent = `خانه ${toPersianDigits(sp.id)}: ${sp.fa}`;
+      if (frEl) frEl.innerHTML = `<bdi dir="ltr">${sp.fr}</bdi>`;
+      if (regEl) regEl.textContent = reg.label;
+      if (typeEl) typeEl.textContent = TYPE_LABELS[sp.type] || `مسیر عادی`;
+      if (ruleEl) ruleEl.textContent = `قانون بازی: ${sp.ruleText}`;
+      if (storyEl) storyEl.textContent = sp.story;
+      if (modEl) modEl.textContent = sp.modern;
+    }
+
+    function renderTravelLog() {
+      const ul = document.getElementById(`travel-log-list`);
+      if (!ul) return;
+      ul.innerHTML = state.logs.map(item => `<li>${item}</li>`).join(``);
+    }
+
+    // =========================================================================
+    // 6. STORYTELLING POPUP MODAL
+    // =========================================================================
+    let modalSpaceId = 5;
+
+    function openSpaceModal(id) {
+      const sp = SPACES.find(s => s.id === id) || SPACES[4];
+      modalSpaceId = sp.id;
+      const modal = document.getElementById(`story-modal`);
+      if (!modal) return;
+
+      const kickerEl = document.getElementById(`modal-kicker`);
+      const titleEl = document.getElementById(`modal-title`);
+      const frEl = document.getElementById(`modal-french`);
+      const regEl = document.getElementById(`modal-region`);
+      const typeEl = document.getElementById(`modal-type`);
+      const ruleEl = document.getElementById(`modal-rule`);
+      const storyEl = document.getElementById(`modal-story`);
+      const modEl = document.getElementById(`modal-modern`);
+
+      if (kickerEl) kickerEl.textContent = sp.isMyth ? `پروندهٔ خطای نقشه‌نگاری • خانه ${toPersianDigits(sp.id)}` : `روایت ایستگاه ${toPersianDigits(sp.id)} از ۶۳`;
+      if (titleEl) titleEl.textContent = `خانه ${toPersianDigits(sp.id)}: ${sp.fa}`;
+      if (frEl) frEl.innerHTML = `<bdi dir="ltr">${sp.fr}</bdi>`;
+      if (regEl) regEl.textContent = REGIONS[sp.region].label;
+      if (typeEl) typeEl.textContent = TYPE_LABELS[sp.type];
+      if (ruleEl) ruleEl.textContent = `قانون تختهٔ بازی: ${sp.ruleText}`;
+      if (storyEl) storyEl.textContent = sp.story;
+      if (modEl) modEl.textContent = sp.modern;
+
+      modal.classList.add(`is-open`);
+    }
+
+    function closeSpaceModal() {
+      const modal = document.getElementById(`story-modal`);
+      if (modal) modal.classList.remove(`is-open`);
+    }
+
+    function navigateModal(delta) {
+      let next = modalSpaceId + delta;
+      if (next < 1) next = 63;
+      if (next > 63) next = 1;
+      selectSpace(next);
+      openSpaceModal(next);
+    }
+
+    // =========================================================================
+    // 7. DATA VISUALIZATIONS (CHART.JS)
+    // =========================================================================
+    function renderRegionsChart() {
+      const canvas = document.getElementById(`chart-regions`);
+      if (!canvas || typeof Chart === `undefined`) return;
+
+      const regionKeys = [`americas`, `africa`, `asia`, `europe`, `france`];
+      const labels = regionKeys.map(k => REGIONS[k].short);
+      const countBy = (key, pred) => SPACES.filter(s => s.region === key && pred(s)).length;
+
+      const normalData = regionKeys.map(k => countBy(k, s => (s.type === `normal` || s.type === `goal`) && !s.isMyth));
+      const mythData = regionKeys.map(k => countBy(k, s => s.isMyth));
+      const shortcutData = regionKeys.map(k => countBy(k, s => s.type === `shortcut`));
+      const obstacleData = regionKeys.map(k => countBy(k, s => s.type === `hazard` || s.type === `inn`));
+
+      if (chartRegionsInstance) chartRegionsInstance.destroy();
+      chartRegionsInstance = new Chart(canvas, {
+        type: `bar`,
+        data: {
+          labels: labels,
+          datasets: [
+            { label: `مسیر عادی`, data: normalData, backgroundColor: getCssToken(`--data-context`), borderWidth: 0 },
+            { label: `خطای نقشه‌نگاری`, data: mythData, backgroundColor: getCssToken(`--data-1`), borderWidth: 0 },
+            { label: `بادبان موافق`, data: shortcutData, backgroundColor: getCssToken(`--data-2`), borderWidth: 0 },
+            { label: `مانع / توقف‌گاه`, data: obstacleData, backgroundColor: getCssToken(`--data-4`), borderWidth: 0 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: (_evt, elements) => {
+            if (elements && elements.length > 0) {
+              const idx = elements[0].index;
+              const regFilter = document.getElementById(`filter-region`);
+              if (regFilter) {
+                regFilter.value = regionKeys[idx];
+                filterGazetteer();
+                regFilter.scrollIntoView({ behavior: `smooth`, block: `center` });
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              position: `bottom`,
+              labels: { font: { family: `Vazirmatn, sans-serif`, size: 12 }, color: getCssToken(`--on-surface`), boxWidth: 12 }
+            }
+          },
+          scales: {
+            x: {
+              stacked: true,
+              grid: { display: false },
+              ticks: { font: { family: `Vazirmatn, sans-serif`, size: 12 }, color: getCssToken(`--on-surface`) }
+            },
+            y: {
+              stacked: true,
+              beginAtZero: true,
+              grid: { color: getCssToken(`--outline-variant`) },
+              ticks: { stepSize: 4, font: { family: `Vazirmatn, sans-serif`, size: 11 }, color: getCssToken(`--on-surface-variant`) }
+            }
+          }
+        }
+      });
+    }
+
+    function simulateOneGame(diceCount) {
+      let pos = 0;
+      let turns = 0;
+      let skip = false;
+      while (pos !== 63 && turns < 200) {
+        turns++;
+        if (skip) {
+          skip = false;
+          continue;
+        }
+        let roll = Math.floor(Math.random() * 6) + 1;
+        if (diceCount === 2) roll += Math.floor(Math.random() * 6) + 1;
+        let next = pos + roll;
+        if (next > 63) next = 63 - (next - 63);
+        pos = next;
+        const sp = SPACES[pos - 1];
+        if ((sp.type === `shortcut` || sp.type === `hazard`) && sp.jumpTo) {
+          pos = sp.jumpTo;
+        } else if (sp.type === `inn`) {
+          skip = true;
+        }
+      }
+      return turns;
+    }
+
+    function runMonteCarloSimulation() {
+      const canvas = document.getElementById(`chart-simulation`);
+      if (!canvas || typeof Chart === `undefined`) return;
+
+      const runs = 1000;
+      const bins = [`۱–۱۰`, `۱۱–۲۰`, `۲۱–۳۰`, `۳۱–۴۰`, `۴۱–۵۰`, `+۵۱`];
+      const hist2 = [0, 0, 0, 0, 0, 0];
+      const hist1 = [0, 0, 0, 0, 0, 0];
+      let sum2 = 0;
+      let sum1 = 0;
+
+      for (let i = 0; i < runs; i++) {
+        const t2 = simulateOneGame(2);
+        const t1 = simulateOneGame(1);
+        sum2 += t2;
+        sum1 += t1;
+        hist2[Math.min(5, Math.floor((t2 - 1) / 10))]++;
+        hist1[Math.min(5, Math.floor((t1 - 1) / 10))]++;
+      }
+
+      const pct2 = hist2.map(v => Math.round((v / runs) * 1000) / 10);
+      const pct1 = hist1.map(v => Math.round((v / runs) * 1000) / 10);
+
+      const statsEl = document.getElementById(`sim-stats-row`);
+      if (statsEl) {
+        const avg2 = (sum2 / runs).toFixed(1);
+        const avg1 = (sum1 / runs).toFixed(1);
+        statsEl.innerHTML = `
+          <span>میانگین با ۲ تاس: ${toPersianDigits(avg2)} نوبت</span>
+          <span>میانگین با ۱ تاس: ${toPersianDigits(avg1)} نوبت</span>
+          <button type="button" class="btn btn-ghost" style="min-height: 36px; padding: var(--space-xs) var(--space-sm);" onclick="runMonteCarloSimulation()">اجرای دوبارهٔ ۱۰۰۰ شبیه‌سازی</button>
+        `;
+      }
+
+      if (chartSimInstance) chartSimInstance.destroy();
+      chartSimInstance = new Chart(canvas, {
+        type: `line`,
+        data: {
+          labels: bins,
+          datasets: [
+            {
+              label: `۲ تاس کلاسیک (٪ بازی‌ها)`,
+              data: pct2,
+              borderColor: getCssToken(`--data-1`),
+              backgroundColor: getCssToken(`--data-1`),
+              borderWidth: 2.5,
+              tension: 0.25,
+              pointRadius: 4
+            },
+            {
+              label: `۱ تاس کاوش آرام (٪ بازی‌ها)`,
+              data: pct1,
+              borderColor: getCssToken(`--data-2`),
+              backgroundColor: getCssToken(`--data-2`),
+              borderWidth: 2,
+              tension: 0.25,
+              pointRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: `bottom`,
+              labels: { font: { family: `Vazirmatn, sans-serif`, size: 12 }, color: getCssToken(`--on-surface`), boxWidth: 14 }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              title: { display: true, text: `بازهٔ تعداد پرتاب تاس تا پاریس`, font: { family: `Vazirmatn, sans-serif`, size: 11 }, color: getCssToken(`--on-surface-variant`) },
+              ticks: { font: { family: `Vazirmatn, sans-serif`, size: 11 }, color: getCssToken(`--on-surface`) }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: getCssToken(`--outline-variant`) },
+              ticks: {
+                callback: v => `${toPersianDigits(v)}٪`,
+                font: { family: `Vazirmatn, sans-serif`, size: 11 },
+                color: getCssToken(`--on-surface-variant`)
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // =========================================================================
+    // 8. FULL 63-SPACE SEARCHABLE GAZETTEER TABLE
+    // =========================================================================
+    function filterGazetteer() {
+      const q = (document.getElementById(`search-spaces`)?.value || ``).trim().toLowerCase();
+      const regVal = document.getElementById(`filter-region`)?.value || `all`;
+      const typeVal = document.getElementById(`filter-type`)?.value || `all`;
+
+      const filtered = SPACES.filter(sp => {
+        if (regVal !== `all` && sp.region !== regVal) return false;
+        if (typeVal !== `all` && sp.type !== typeVal) return false;
+        if (q) {
+          const hay = `${sp.id} ${sp.fa} ${sp.fr} ${sp.story} ${sp.modern}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      const countEl = document.getElementById(`gazetteer-count`);
+      if (countEl) countEl.textContent = `نمایش ${toPersianDigits(filtered.length)} از ۶۳ خانه`;
+
+      const tbody = document.getElementById(`gazetteer-tbody`);
+      if (!tbody) return;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: var(--space-lg); color: var(--on-surface-variant);">هیچ خانه‌ای با این عبارت یا فیلتر یافت نشد. دکمهٔ «پاک‌کردن فیلترها» را بزنید.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(sp => {
+        const isSel = sp.id === state.selectedSpaceId ? `is-row-selected` : ``;
+        const regLabel = REGIONS[sp.region].short;
+        const typeLabel = TYPE_LABELS[sp.type];
+        const mythMark = sp.isMyth ? ` • <strong>خطای تاریخی</strong>` : ``;
+        return `
+          <tr id="gaz-row-${sp.id}" class="${isSel}" onclick="selectSpace(${sp.id})">
+            <td class="tabular-nums" style="font-weight: 800;">${toPersianDigits(sp.id)}</td>
+            <td>
+              <div style="font-weight: 700;">${sp.fa}</div>
+              <div class="latin-meta" style="margin-top: 2px;"><bdi dir="ltr">${sp.fr}</bdi></div>
+            </td>
+            <td style="white-space: nowrap;">${regLabel}</td>
+            <td>
+              <span class="${sp.isMyth ? `tag tag-claret` : `tag`}">${typeLabel}</span>${mythMark}
+              <div style="font-size: 0.82rem; color: var(--on-surface-variant); margin-top: 2px;">${sp.ruleText}</div>
+            </td>
+            <td style="font-size: 0.86rem; color: var(--on-surface-variant); max-width: 340px;">${sp.modern}</td>
+            <td style="white-space: nowrap;">
+              <button type="button" class="btn btn-ghost" style="min-height: 36px; padding: var(--space-xs) var(--space-sm);" onclick="event.stopPropagation(); selectSpace(${sp.id}); openSpaceModal(${sp.id});">روایت</button>
+            </td>
+          </tr>
+        `;
+      }).join(``);
+    }
+
+    function highlightGazetteerRow() {
+      SPACES.forEach(sp => {
+        const row = document.getElementById(`gaz-row-${sp.id}`);
+        if (row) row.classList.toggle(`is-row-selected`, sp.id === state.selectedSpaceId);
+      });
+    }
+
+    function resetGazetteerFilters() {
+      const s = document.getElementById(`search-spaces`);
+      const r = document.getElementById(`filter-region`);
+      const t = document.getElementById(`filter-type`);
+      if (s) s.value = ``;
+      if (r) r.value = `all`;
+      if (t) t.value = `all`;
+      filterGazetteer();
+    }
+
+    // =========================================================================
+    // 9. EXPORT & UTILITIES
+    // =========================================================================
+    function exportJourneyCSV() {
+      const rows = [
+        [`Circle`, `Persian_Name`, `French_1645`, `Region`, `Type`, `Is_Misconception`, `Visited_By_User`]
+      ];
+      SPACES.forEach(sp => {
+        rows.push([
+          sp.id,
+          `"${sp.fa}"`,
+          `"${sp.fr}"`,
+          `"${REGIONS[sp.region].short}"`,
+          `"${TYPE_LABELS[sp.type]}"`,
+          sp.isMyth ? `Yes` : `No`,
+          state.visitedSpaces.includes(sp.id) ? `Yes` : `No`
+        ]);
+      });
+      const csvContent = `\uFEFF` + rows.map(r => r.join(`,`)).join(`\n`);
+      if (window.notebookAppApi && typeof window.notebookAppApi.triggerFileDownload === `function`) {
+        window.notebookAppApi.triggerFileDownload({
+          content: csvContent,
+          contentType: `text/csv`,
+          encoding: `UTF-8`,
+          filename: `le_jeu_du_monde_1645_fa.csv`
+        });
+      }
+      prependLog(`فهرست کامل ۶۳ دایره و خانه‌های کاوش‌شده به صورت CSV آمادهٔ بارگیری شد.`);
+      renderTravelLog();
+      persistState();
+    }
+
+    function toPersianDigits(val) {
+      const map = [`۰`, `۱`, `۲`, `۳`, `۴`, `۵`, `۶`, `۷`, `۸`, `۹`];
+      return String(val).replace(/\d/g, d => map[Number(d)]);
+    }
+
+    // =========================================================================
+    // 10. INITIALIZATION
+    // =========================================================================
+    async function initApp() {
+      // Close modal on backdrop click or Escape
+      const modal = document.getElementById(`story-modal`);
+      if (modal) {
+        modal.addEventListener(`click`, e => {
+          if (e.target === modal) closeSpaceModal();
+        });
+      }
+      document.addEventListener(`keydown`, e => {
+        if (e.key === `Escape`) closeSpaceModal();
+      });
+
+      // Restore state from host shim
+      try {
+        if (window.notebookAppApi && typeof window.notebookAppApi.getAppState === `function`) {
+          const saved = await window.notebookAppApi.getAppState();
+          if (saved && Array.isArray(saved.players) && saved.players.length >= 2) {
+            state = Object.assign(cloneState(DEFAULT_STATE), saved);
+          }
+        }
+      } catch (err) {
+        // Use default state
+      }
+
+      renderBoardSVG();
+      filterGazetteer();
+      renderAllUI();
+      renderRegionsChart();
+      runMonteCarloSimulation();
+
+      if (window.notebookAppApi && typeof window.notebookAppApi.notifyAppReady === `function`) {
+        window.notebookAppApi.notifyAppReady();
+      }
+    }
+
+    document.addEventListener(`DOMContentLoaded`, initApp);
+  </script>
+</body>
+</html>
